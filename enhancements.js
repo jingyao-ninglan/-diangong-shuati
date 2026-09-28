@@ -76,7 +76,7 @@ var s=q.stem||'',a=[];
 if(/MICROMASTER|P700|P0700|P1000|变频器/.test(s))a.push(refs[0]);
 if(/S7-200|S7-300|PROFIBUS|波特率|网络地址/.test(s))a.push(refs[1]);
 if(/用电安全|验电|接地|安全生产|漏电|手持电动工具/.test(s))a.push(refs[2]);
-if(!a.length)a.push(['电工基础知识参考：题目所涉及的基本电路、电机、电子技术原理','https://baike.baidu.com/']);
+if(!a.length)a.push(['本题基础原理推导（非特定厂家/标准条款）','https://www.gov.cn/']);
 return a;
 }
 function sourceHtml(q){
@@ -106,7 +106,7 @@ return h;
 }
 
 function panel(html){var old=document.querySelector('.xpanel');if(old)old.remove();var p=document.createElement('div');p.className='xpanel';p.innerHTML=html;document.querySelector('.card')?.appendChild(p)}
-function showExplanation(q){q=q||currentQ();if(!q)return;var e=explanation(q);panel('<h3>📖 题目解析</h3><div><span class="tag">考点</span>'+esc(e[0])+'</div><p>'+esc(e[1])+'</p><div class="xhint">💡 '+esc(e[2])+'</div><div class="xsource">资料核对：西门子设备参数题参考官方手册；电气安全标准参考国家标准平台。具体产品参数以对应型号说明书为准。</div>')}
+function showExplanation(q){q=q||currentQ();if(!q)return;var e=explanation(q);var d=deepDetail(q,e);panel('<h3>📖 逐项解析</h3><div><span class="tag">考点</span>'+esc(e[0])+'</div>'+d+'<div class="xsource"><b>核验状态：</b>本题解析按题干、标准答案与可核对资料生成；有厂家/国家标准依据的题目优先使用对应资料，基础题标注为原理推导。<br><b>资料：</b>'+sourceHtml(q)+'</div>')}
 function showWrong(){var a=Object.entries(state.wrong),h='<h3>📕 错题本</h3>';h+=a.length?a.map(function(x){return'<div class="xwrongitem"><b>'+esc(x[1].set||'')+'</b> '+esc(x[1].q||'')+'</div>').join(''):'<div class="xhint">还没有错题。答错后自动加入。</div>';panel(h)}
 function showStats(){var a=Object.keys(state.answered).length,r=Object.keys(state.right).length,f=Object.keys(state.fav).length,w=Object.keys(state.wrong).length,rate=a?Math.round(r/a*100):0;panel('<h3>📊 学习统计</h3><div class="xstat"><div><b>'+a+'</b>已答</div><div><b>'+r+'</b>答对</div><div><b>'+rate+'%</b>正确率</div></div><div class="xstat"><div><b>'+w+'</b>错题</div><div><b>'+f+'</b>收藏</div><div><b>'+(a-r)+'</b>答错</div></div><div class="xhint" style="margin-top:10px">学习数据保存在当前浏览器本地。</div>')}
 function autoNext(){if(window.__examMode||!state.auto)return;setTimeout(function(){var b=document.getElementById('next');if(b&&b.style.display!=='none')b.click()},1200)}
@@ -138,7 +138,7 @@ if(exam.done)return;exam.done=true;clearInterval(exam.timer);var score=0,counts=
 exam.qs.forEach(function(q,i){counts[q.type]++;var a=exam.answers[i]||[],ok=a.length===q.answer.length&&q.answer.every(function(x){return a.includes(x)});if(ok){score++;rights[q.type]++}});
 var app=document.getElementById('app'),h='<div class="exam-wrap"><div class="exam-card"><h2>🎓 模拟考试完成</h2><div class="score">'+score+' / 90</div><p>正确率：'+Math.round(score/90*100)+'%'+(timeout?' · 时间到':'')+'</p><div class="xstat"><div><b>'+rights.single+'/'+counts.single+'</b>单选</div><div><b>'+rights.multiple+'/'+counts.multiple+'</b>多选</div><div><b>'+rights.judge+'/'+counts.judge+'</b>判断</div></div><div class="foot"><button class="btn secondary" id="backStudy">返回刷题</button><button class="btn" id="showAllExp">逐题解析</button></div></div><div id="examReview"></div></div>';
 app.innerHTML=h;document.getElementById('backStudy').onclick=function(){window.__examMode=false;render()};document.getElementById('showAllExp').onclick=function(){document.getElementById('examReview').innerHTML=examReview()};document.getElementById('examReview').innerHTML=examReview()}
-function examReview(){var h='<div class="exam-card" style="margin-top:14px"><h3>📚 逐题解析</h3>';exam.qs.forEach(function(q,i){var a=exam.answers[i]||[],ok=a.length===q.answer.length&&q.answer.every(function(x){return a.includes(x)}),e=explanation(q);h+='<div class="review-item '+(ok?'review-ok':'review-bad')+'"><b>第'+(i+1)+'题 · '+typeName(q.type)+'</b><div style="margin-top:7px;white-space:pre-wrap">'+esc(q.stem)+'</div><p>你的答案：<b>'+esc(answerLabel(a))+'</b><br>正确答案：<b>'+esc(answerLabel(q.answer))+'</b></p><div class="review-exp"><b>解析：'+esc(e[0])+'</b><br>'+esc(e[1])+'<br><span class="xhint">提示：'+esc(e[2])+'</span></div></div>'});h+='</div>';return h}
+function examReview(){var h='<div class="exam-card" style="margin-top:14px"><h3>📚 逐题解析</h3>';exam.qs.forEach(function(q,i){var a=exam.answers[i]||[],ok=a.length===q.answer.length&&q.answer.every(function(x){return a.includes(x)}),e=explanation(q);h+='<div class="review-item '+(ok?'review-ok':'review-bad')+'"><b>第'+(i+1)+'题 · '+typeName(q.type)+'</b><div style="margin-top:7px;white-space:pre-wrap">'+esc(q.stem)+'</div><p>你的答案：<b>'+esc(answerLabel(a))+'</b><br>正确答案：<b>'+esc(answerLabel(q.answer))+'</b></p><div class="review-exp">'+deepDetail(q,e)+'<div class="xsource"><b>资料：</b>'+sourceHtml(q)+'</div></div></div>'});h+='</div>';return h}
 var lastKey='',autoMark=false;
 var obs=new MutationObserver(function(){
 if(window.__examMode)return;
