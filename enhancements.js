@@ -21,6 +21,17 @@ if(/S7-300.*S7-200|S7-200.*S7-300/.test(s)&&/Profibus|ProfiBus/.test(s))return['
 if(/MICROMASTER|P700|P1000/.test(s))return['变频器参数','P0700选择命令源，P1000选择频率设定源，两者可以独立设置。','做参数题先判断题干问“控制命令”还是“频率给定”。'];
 if(/UPS/.test(s))return['UPS结构','后备式UPS在市电正常时通常由市电供电，停电后切换到电池逆变；在线式UPS则持续由逆变器向负载供电。','记忆：后备式有切换时间，在线式持续逆变。'];
 if(/趋肤效应/.test(s))return['趋肤效应','交流频率升高时，电流更集中在导体表面，有效载流面积减小，交流电阻随之增大。','交流频率↑ → 趋肤效应↑ → 交流电阻↑。'];
+if(/RLC串联.*谐振|串联电路.*谐振/.test(s)&&/频率/.test(s))return['RLC串联谐振','谐振时感抗与容抗相等。频率升高后，XL=2πfL增大，而XC=1/(2πfC)减小，因此电路呈感性。','f>f0：XL>XC，呈感性。'];
+if(/0区/.test(s)&&/爆炸危险区域/.test(s))return['爆炸性气体环境分区','0区针对爆炸性气体环境，指爆炸性气体混合物连续出现或长期存在的场所；粉尘环境采用20区、21区、22区的划分体系。','0区关键词：气体 + 连续/长期。'];
+if(/独立避雷针/.test(s)&&/接地电阻/.test(s))return['独立避雷针接地','题库此类题通常考独立避雷针接地装置与建筑物接地系统的设置要求。具体允许值应按题目采用的标准、场所类别和工程条件核对，不能脱离标准版本机械记忆。','这类数值题要优先核对适用标准版本。'];
+if(/PI|P调节器|稳态误差/.test(s))return['PI调节器与稳态误差','比例环节对阶跃输入通常存在稳态误差；加入积分环节后，积分会持续累积偏差，理想条件下可消除阶跃输入的稳态误差。','P→有静差；PI→消除阶跃稳态误差。'];
+if(/步进电机.*控制脉冲|脉冲发生器/.test(s))return['步进电机脉冲控制','脉冲发生器产生控制脉冲，脉冲频率决定步进速度；脉冲数量决定转过的步数/角位移，脉冲分配器负责按相序分配驱动信号。','发生器“出脉冲”，分配器“按相序分配”。'];
+if(/晶闸管.*两个引脚|控制极和阴极/.test(s))return['晶闸管引脚识别','晶闸管SCR的三个电极是阳极A、阴极K和门极G。用万用表低阻/二极管档进行静态检测时，门极—阴极之间可表现出PN结特性。','A-K主回路，G-K为触发控制关系。'];
+if(/电梯曳引机|交-直-交/.test(s))return['电梯变频调速','交-直-交变频器先整流得到直流环节，再逆变输出可变频、可变压的交流，适合交流电动机调速，并便于实现平滑启动和制动。','交-直-交：整流 → 直流环节 → 逆变。'];
+if(/软启动器.*长时间|达不到额定/.test(s))return['软启动器故障分析','软启动器通过调节晶闸管导通角限制启动电流。长期达不到额定转速可能涉及启动参数、控制方式、晶闸管模块或负载异常，需要结合报警和现场机械状态逐项排查。','先分“参数/控制/功率器件/负载”四类。'];
+if(/定时器T1中断入口地址|001BH/.test(s))return['8051中断入口地址','标准8051中，定时器/计数器0中断入口地址为000BH，定时器/计数器1中断入口地址为001BH，因此T1为001BH。','T0：000BH；T1：001BH。'];
+if(/变频器.*不能启动|速度信号/.test(s))return['变频器启动故障','变频器已经处于启动状态但电机不能启动时，应检查运行命令源、频率给定、控制信号通信、输出状态以及保护/故障信息。题干若明确“速度信号丢失”，应优先考虑给定信号链路。','变频器不启动：先查命令，再查给定，再查保护。'];
+if(/临时用电.*负荷计算/.test(s))return['临时用电负荷计算','不同设计阶段和负荷特性可采用不同的计算方法。需要系数法常用于工程负荷计算，二项式法更适用于具有明显设备组特征的负荷计算，单位指标法可用于方案阶段的估算。','关键是判断题干的设计阶段和负荷类型。'];
 if(/方式2|定时.*计数器/.test(s)&&/单片机/.test(s))return['8051定时/计数器','经典8051的方式2是8位自动重装载方式，溢出后自动装入初值，因此计数容量为256个状态。','方式1=16位；方式2=8位自动重装载。'];
 if(/Keil.*HEX|烧录.*文件|HEX/.test(s))return['单片机程序烧录','Keil C51程序经过编译、链接后常生成HEX文件，用于向单片机程序存储器烧录。','C源程序 → 编译/链接 → HEX → 烧录。'];
 if(/超声波流量计/.test(s))return['超声波流量测量','利用超声波顺流、逆流传播速度或传播时间差来计算流体速度，再由管道截面积得到流量。','关键词：时间差/速度差法。'];
@@ -60,6 +71,17 @@ for(var i=0;i<90;i++){var q=s.questions[order[i]],kk=metaKeyFor(q),cls='xnum '+(
 h+='</div>';nav.innerHTML=h;document.querySelector('.wrap').insertBefore(nav,document.querySelector('#app'));nav.querySelectorAll('.xnum').forEach(function(b){b.onclick=function(){idx=+b.dataset.i;render();showNav()}})
 }
 function metaKeyFor(q){return '第 '+setId+'套 · 第 '+q.n+'题 · '+(q.type==='single'?'单选':q.type==='multiple'?'多选':'判断')+'|'+q.stem}
+function sourcesFor(q){
+var s=q.stem||'',a=[];
+if(/MICROMASTER|P700|P0700|P1000|变频器/.test(s))a.push(refs[0]);
+if(/S7-200|S7-300|PROFIBUS|波特率|网络地址/.test(s))a.push(refs[1]);
+if(/用电安全|验电|接地|安全生产|漏电|手持电动工具/.test(s))a.push(refs[2]);
+if(!a.length)a.push(['电工基础知识参考：题目所涉及的基本电路、电机、电子技术原理','https://baike.baidu.com/']);
+return a;
+}
+function sourceHtml(q){
+return sourcesFor(q).map(function(x){return '<a href="'+x[1]+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'}).join('<br>');
+}
 function panel(html){var old=document.querySelector('.xpanel');if(old)old.remove();var p=document.createElement('div');p.className='xpanel';p.innerHTML=html;document.querySelector('.card')?.appendChild(p)}
 function showExplanation(q){q=q||currentQ();if(!q)return;var e=explanation(q);panel('<h3>📖 题目解析</h3><div><span class="tag">考点</span>'+esc(e[0])+'</div><p>'+esc(e[1])+'</p><div class="xhint">💡 '+esc(e[2])+'</div><div class="xsource">资料核对：西门子设备参数题参考官方手册；电气安全标准参考国家标准平台。具体产品参数以对应型号说明书为准。</div>')}
 function showWrong(){var a=Object.entries(state.wrong),h='<h3>📕 错题本</h3>';h+=a.length?a.map(function(x){return'<div class="xwrongitem"><b>'+esc(x[1].set||'')+'</b> '+esc(x[1].q||'')+'</div>').join(''):'<div class="xhint">还没有错题。答错后自动加入。</div>';panel(h)}
