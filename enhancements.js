@@ -6,7 +6,7 @@ function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function esc(x){return String(x).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]})}
 function stem(){return document.querySelector('.q')?.innerText?.trim()||''}
 function meta(){return document.querySelector('.meta')?.innerText?.trim()||''}
-function key(){return meta().replace(/\s+/g,' ')+'|'+stem()}
+function key(){var q=currentQ();return q?('第'+setId+'套|第'+q.n+'题|'+q.stem):meta().replace(/\s+/g,' ')+'|'+stem()}
 var refs=[
 ['西门子 MICROMASTER 420：P0700/P1000 操作说明','https://support.industry.siemens.com/cs/attachments/9296615/MM420_OPI_1201_en.pdf'],
 ['西门子 S7-200 系统手册：PROFIBUS、波特率和网络地址','https://cache.industry.siemens.com/dl/files/582/1109582/att_22063/v1/s7200_system_manual_en-US.pdf'],
