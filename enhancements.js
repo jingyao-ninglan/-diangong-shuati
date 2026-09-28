@@ -9,7 +9,7 @@ function panel(html){var card=document.querySelector("#app .card");if(!card)retu
 function explain(){var z=current();if(!z)return;var h="<h3 style='margin:0 0 8px'>📖 详细解析</h3><p><b>正确答案：</b>"+esc(z.answer.join("、"))+"</p><p><b>题目：</b>"+esc(z.stem)+"</p>";if(z.options&&z.options.length){z.options.forEach(function(o){h+="<div style='margin:7px 0'><b>"+esc(o.key)+"：</b>"+esc(o.text)+(z.answer.indexOf(o.key)>=0?" <span style='color:#16a34a'>✅ 正确</span>":" <span style='color:#dc2626'>❌ 错误</span>")+"</div>";});}else{h+="<p>判断题：正确答案为 <b>"+esc(z.answer.join("、"))+"</b></p>";}panel(h);}
 function addToolbar(){
  var w=document.querySelector(".wrap");if(!w)return;
- var old=document.getElementById("xbar");if(old)old.remove();
+ if(document.getElementById("xbar"))return;
  var b=document.createElement("div");b.id="xbar";
  b.style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;position:relative;z-index:4";
  b.innerHTML="<button id=xexp>📖 详细解析</button><button id=xfav>⭐ 收藏</button><button id=xwrong>📕 错题本</button><button id=xstat>📊 学习统计</button><button id=xdark>🌙 夜间模式</button>";
