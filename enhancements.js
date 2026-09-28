@@ -1,58 +1,107 @@
-(function(){
-var css='.xbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}.xbar button{border:1px solid #d8dee8;background:#fff;border-radius:10px;padding:9px 11px;font-weight:700;color:#344054}.xbar button.on{background:#eef4ff;border-color:#2563eb;color:#1d4ed8}.xpanel{background:#f8fafc;border:1px solid #dbe3ef;border-radius:14px;padding:14px;margin-top:14px;line-height:1.7}.xpanel h3{margin:0 0 8px;font-size:16px}.xpanel .tag{display:inline-block;background:#eaf1ff;color:#1d4ed8;border-radius:99px;padding:2px 8px;font-size:12px;font-weight:800;margin-right:6px}.xsource{font-size:12px;color:#667085;margin-top:10px}.xsource a{color:#2563eb;text-decoration:none}.xstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.xstat div{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:9px;text-align:center}.xstat b{display:block;font-size:18px}.xhint{color:#667085;font-size:13px}.xwrongitem{padding:8px;border-bottom:1px solid #e5e7eb;cursor:pointer}';
-var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
-var KEY='diangong2024_v2',state=JSON.parse(localStorage.getItem(KEY)||'{"fav":{},"wrong":{},"answered":{},"right":{}}');
+(function(){var CSS_TEXT="\n:root{--bg:#f3f6fa;--card:#fff;--text:#172033;--muted:#667085;--line:#d8dee8;--blue:#2563eb}\nbody.dark{--bg:#0f172a;--card:#172033;--text:#e5e7eb;--muted:#94a3b8;--line:#334155;--blue:#60a5fa;background:#0f172a!important;color:#e5e7eb!important}\nbody.dark .top,body.dark .card,body.dark .opt,body.dark .xpanel,body.dark .xnav,body.dark .exam-card{background:#172033!important;color:#e5e7eb;border-color:#334155}\nbody.dark .opt{background:#172033}.dark .btn.secondary{background:#263247;color:#e5e7eb}.dark .mode button{background:#172033;color:#e5e7eb;border-color:#334155}\n.xbar{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 12px}.xbar button{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:10px;padding:8px 10px;font-weight:700}.xbar button.on{background:#eaf1ff;border-color:#2563eb;color:#1d4ed8}\n.xnav{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 14px}.xnavhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-weight:800}.xnums{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}.xnum{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:7px 0;font-size:12px}.xnum.done{background:#dcfce7;border-color:#86efac;color:#166534}.xnum.cur{outline:2px solid #2563eb}.xnum.wrong{background:#fee2e2;border-color:#fca5a5;color:#991b1b}\n.xpanel{background:#f8fafc;border:1px solid #dbe3ef;border-radius:14px;padding:14px;margin-top:14px;line-height:1.7}.xpanel h3{margin:0 0 8px;font-size:16px}.xpanel .tag{display:inline-block;background:#eaf1ff;color:#1d4ed8;border-radius:99px;padding:2px 8px;font-size:12px;font-weight:800;margin-right:6px}.xsource{font-size:12px;color:var(--muted);margin-top:10px}.xsource a{color:#2563eb}.xstat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.xstat div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px;text-align:center}.xstat b{display:block;font-size:18px}.xhint{color:var(--muted);font-size:13px}\n.exam-wrap{max-width:760px;margin:auto}.exam-head{position:sticky;top:0;z-index:6;background:var(--card);border-bottom:1px solid var(--line);padding:10px 12px;margin:-18px -14px 14px}.exam-headrow{display:flex;align-items:center;gap:8px}.exam-title{font-weight:900;flex:1}.timer{font-weight:900;color:#dc2626}.exam-progress{height:7px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-top:8px}.exam-progress i{display:block;height:100%;background:var(--blue)}.exam-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px}.exam-q{font-size:19px;line-height:1.7;font-weight:700;white-space:pre-wrap;margin:12px 0}.exam-opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:13px;margin:9px 0}.exam-opt.sel{border-color:#2563eb;background:#eef4ff}.exam-nav{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:12px}.exam-num{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:7px;padding:6px 0;font-size:11px}.exam-num.done{background:#dcfce7;color:#166534}.exam-num.cur{outline:2px solid #2563eb}.review-item{border:1px solid var(--line);border-radius:12px;padding:13px;margin:10px 0}.review-ok{border-left:4px solid #16a34a}.review-bad{border-left:4px solid #dc2626}.review-exp{background:#f8fafc;padding:10px;border-radius:9px;margin-top:8px}.dark .review-exp{background:#0f172a}\n@media(max-width:520px){.xnums,.exam-nav{grid-template-columns:repeat(10,1fr)}.xnum,.exam-num{font-size:11px;padding:6px 0}.exam-q{font-size:18px}}\n";
+
+var st=document.createElement('style');st.textContent=CSS_TEXT;document.head.appendChild(st);
+var KEY='diangong2024_v3',state=JSON.parse(localStorage.getItem(KEY)||'{"fav":{},"wrong":{},"answered":{},"right":{},"dark":false,"auto":true}');
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function esc(x){return String(x).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]})}
 function stem(){return document.querySelector('.q')?.innerText?.trim()||''}
 function meta(){return document.querySelector('.meta')?.innerText?.trim()||''}
 function key(){return meta().replace(/\s+/g,' ')+'|'+stem()}
-function esc(x){return String(x).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]})}
 var refs=[
-['西门子：MM420/430/440 变频器启停和调速','https://www.ad.siemens.com.cn/productportal/prods/mm4/drv/006speed/control.html'],
-['西门子：S7-200 与 S7-300 PROFIBUS 通讯','https://www.ad.siemens.com.cn/download/documentdetail_1360.html'],
-['全国标准信息公共服务平台：GB/T 13869-2017 用电安全导则','https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=1C5996A8BAD63FF484CCFE024D98849C&refer=outter'],
-['机械工业出版社：电工（高级工）','https://www.cmpedu.com/books/book/5609251.htm']
+['西门子 MICROMASTER 420：P0700/P1000 操作说明','https://support.industry.siemens.com/cs/attachments/9296615/MM420_OPI_1201_en.pdf'],
+['西门子 S7-200 系统手册：PROFIBUS、波特率和网络地址','https://cache.industry.siemens.com/dl/files/582/1109582/att_22063/v1/s7200_system_manual_en-US.pdf'],
+['国家标准：GB/T 13869-2017《用电安全导则》','https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=1C5996A8BAD63FF484CCFE024D98849C&refer=outter'],
+['国家标准：GB/T 13869-2026《用电安全导则》','https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=BE454A97C36FCB5C7DB8EE345EC9A6FF']
 ];
 function explanation(q){
-if(/电流互感器/.test(q)&&/90A/.test(q))return['电流互感器变比','150/5=30，即一次电流是二次电流的30倍。电流表指示90A时，二次线圈电流=90÷30=3A，因此选D。','计算：I₂=I₁×5/150。'];
-if(/P700/.test(q)&&/端子控制/.test(q))return['西门子变频器命令源','P700用于选择命令源；MM4系列中P700=2表示数字输入端子控制启动。','注意区分P700（命令源）和P1000（频率给定源）。'];
-if(/S7-300.*S7-200|S7-200.*S7-300/.test(q)&&/Profibus|ProfiBus/.test(q))return['PROFIBUS通信参数','网络站地址必须区分；同一通信网络的通信速率需要匹配，因此“分配不同通信速率”属于错误做法。','西门子资料明确说明两者通信时地址应不同、通信速率应一致。'];
-if(/振荡器.*放大器|放大器.*振荡器/.test(q))return['振荡器与放大器','放大器需要外部输入信号并对其进行放大；振荡器依靠正反馈和选频网络，在没有外部周期激励时也能产生周期信号。','记忆：放大器“放大已有信号”，振荡器“自己产生信号”。'];
-if(/MICROMASTER|P700|P1000/.test(q))return['变频器命令源与频率源','西门子MM系列把控制命令和频率给定分开设置：P700选择命令源，P1000选择频率给定源。','先判断题干问的是“谁控制启停”还是“频率从哪里来”。'];
-if(/UPS/.test(q))return['UPS基本结构','后备式UPS结构简单、成本较低，市电正常时主要由市电供电，停电时才切换到蓄电池逆变供电，因此存在切换时间。','记忆：后备式=有切换时间；在线式=持续逆变。'];
-if(/趋肤效应/.test(q))return['趋肤效应','交流电频率升高时，电流更集中在导体表面，有效载流截面积减小，因此交流电阻通常增大。','交流 + 频率升高 → 趋肤效应增强 → 电阻增大。'];
-if(/方式2|定时.*计数器/.test(q)&&/单片机/.test(q))return['8051定时/计数器方式2','经典8051的方式2是8位自动重装载方式，溢出后自动装入初值，按8位计数，最大计数状态为256。','方式1为16位，方式2为8位自动重装载。'];
-if(/Keil.*HEX|烧录.*文件|HEX/.test(q))return['单片机程序文件','Keil C51编译链接后通常生成HEX文件，HEX是烧录单片机程序的常见文件格式。','C源程序 → 编译/链接 → HEX → 烧录。'];
-if(/温度继电器/.test(q)&&/制冷/.test(q))return['制冷设备温度继电器','常见温度控制机构可利用感温元件造成压力变化，再推动触点动作，因此这类题常考压力作用原理。','注意题目问的是“推动触点”的物理量。'];
-if(/超声波流量计/.test(q))return['超声波流量测量','利用超声波顺流和逆流传播速度不同，通过传播时间差求流体速度，再结合截面积计算流量。','关键词：传播时间差、速度差法。'];
-if(/运算放大.*输出级|输出电阻/.test(q))return['运算放大器输出级','输出级用于降低输出电阻、提高负载驱动能力，使前级信号能够稳定驱动负载。','输出级重点记“低输出电阻、强带载能力”。'];
-if(/低电阻故障/.test(q))return['电缆低电阻故障','低电阻故障表现为绝缘电阻降低，但导体连续性仍可能良好，判断时应结合绝缘电阻与导通检查。','重点：低绝缘 + 导通良好。'];
-if(/变频器.*散热|环境温度/.test(q))return['变频器环境与散热','功率器件损耗会发热，良好散热有助于控制温升；温度变化较大还可能导致结露。并非所有变频器都必须使用主动散热装置。','注意“必须”等绝对化表述。'];
-if(/电机|异步电动机/.test(q)&&/频率|转速/.test(q))return['异步电动机与频率','同步转速满足 n₁=60f/p。改变频率会改变同步转速，实际转子转速略低于同步转速。','公式：n₁=60f/p，p为极对数。'];
-if(/三相.*整流|整流电路/.test(q)&&/cos|控制角|α|平均值/.test(q))return['三相可控整流','三相桥式全控整流连续电流条件下常用 Ud≈2.34U₂cosα。控制角α增大，平均直流输出电压降低。','先确认题目中的U₂定义。'];
-if(/星.*三角|Y-Δ|星三角/.test(q)&&/启动转矩|启动电流/.test(q))return['星—三角降压启动','星形启动时每相绕组电压降低，启动电流和启动转矩都降低；理想条件下启动转矩约为三角形直接启动的1/3。','记忆：Y启动能降启动电流，也会降低启动转矩。'];
-if(/过零控制/.test(q))return['过零控制','过零调功在交流电压过零附近控制通断，通过改变导通周期数与总周期数比例调节平均功率。','关键词：过零、周波通断、平均功率。'];
-if(/电容耦合/.test(q))return['电容耦合','电容具有隔直通交特性，可隔离直流分量并传递交流信号；容量过小会使低频响应变差。','记忆：电容“隔直通交”，低频更容易受影响。'];
-if(/SPWM|正弦脉宽/.test(q))return['SPWM基本原理','SPWM通过参考正弦波与载波的比较形成脉冲序列；规则采样等方法可由软件计算开关时刻。','关键词：采样、比较、脉宽调制。'];
-if(/电气安全|用电安全|验电|接地|安全/.test(q))return['电气安全基本原则','电气检修首先控制危险能量：停电、验电、采取防止误送电措施，并按作业条件实施接地、警示和防护。','具体要求以题目适用标准和现场规程为准。'];
-return['本题考点解析','先抓题干中的参数、公式、条件以及“正确/错误”等限定词，再按所属知识点排除选项。','该题暂未匹配专门模板，可继续补充逐题解析。'];
+var s=q.stem||'';
+if(/电流互感器/.test(s)&&/90A/.test(s))return['电流互感器变比','150/5=30。题目给出的90A为一次侧指示值时，二次线圈电流=90×5/150=3A，因此选D。','计算式：I₂=I₁×5/150。'];
+if(/P700/.test(s)&&/端子控制/.test(s))return['西门子变频器命令源','P0700用于选择命令源；MM420资料中P0700=2对应端子/数字输入控制。因此端子控制题应选P700=2。','P0700看“命令”，P1000看“频率给定”。'];
+if(/S7-300.*S7-200|S7-200.*S7-300/.test(s)&&/Profibus|ProfiBus/.test(s))return['PROFIBUS通信','同一PROFIBUS网络中的设备需要使用匹配的通信速率，同时站地址要能区分不同设备，因此“设置不同通信速率”是不正确的。','西门子S7-200系统手册明确说明网络设备需使用相同波特率。'];
+if(/MICROMASTER|P700|P1000/.test(s))return['变频器参数','P0700选择命令源，P1000选择频率设定源，两者可以独立设置。','做参数题先判断题干问“控制命令”还是“频率给定”。'];
+if(/UPS/.test(s))return['UPS结构','后备式UPS在市电正常时通常由市电供电，停电后切换到电池逆变；在线式UPS则持续由逆变器向负载供电。','记忆：后备式有切换时间，在线式持续逆变。'];
+if(/趋肤效应/.test(s))return['趋肤效应','交流频率升高时，电流更集中在导体表面，有效载流面积减小，交流电阻随之增大。','交流频率↑ → 趋肤效应↑ → 交流电阻↑。'];
+if(/方式2|定时.*计数器/.test(s)&&/单片机/.test(s))return['8051定时/计数器','经典8051的方式2是8位自动重装载方式，溢出后自动装入初值，因此计数容量为256个状态。','方式1=16位；方式2=8位自动重装载。'];
+if(/Keil.*HEX|烧录.*文件|HEX/.test(s))return['单片机程序烧录','Keil C51程序经过编译、链接后常生成HEX文件，用于向单片机程序存储器烧录。','C源程序 → 编译/链接 → HEX → 烧录。'];
+if(/超声波流量计/.test(s))return['超声波流量测量','利用超声波顺流、逆流传播速度或传播时间差来计算流体速度，再由管道截面积得到流量。','关键词：时间差/速度差法。'];
+if(/运算放大.*输出级|输出电阻/.test(s))return['运算放大器输出级','输出级的重要作用是降低输出电阻、提高带负载能力，使放大器能驱动后级或负载。','输出级记忆：低输出电阻、强驱动。'];
+if(/电缆.*低电阻故障|低电阻故障/.test(s))return['电缆故障诊断','低电阻故障表现为绝缘电阻降低，但导线连续性仍可能良好，因此需要结合绝缘电阻与导通检查判断。','低绝缘 + 导通良好。'];
+if(/变频器.*散热|环境温度/.test(s))return['变频器散热与环境','变频器功率器件会产生热损耗，需要良好散热；温度波动较大还可能造成结露。具体散热方式应按设备型号和安装条件确定。','注意“必须”等绝对化表述。'];
+if(/电机|异步电动机/.test(s)&&/频率|转速/.test(s))return['异步电动机调速','同步转速公式为n₁=60f/p，改变频率会改变同步转速，实际转子转速略低于同步转速。','n₁=60f/p，p为极对数。'];
+if(/星.*三角|星三角|Y-Δ/.test(s)&&/启动/.test(s))return['星三角降压启动','星形启动时每相绕组电压降低，启动电流和启动转矩都会降低；理想条件下启动转矩约为三角形直接启动的1/3。','降电流的同时也会降低启动转矩。'];
+if(/过零触发|过零控制/.test(s))return['过零控制','在交流电压接近零点时控制通断，通过改变一定周期内的导通周波数比例来调节平均功率。','关键词：过零、周波通断、平均功率。'];
+if(/电容耦合/.test(s))return['电容耦合','电容具有隔直通交特性，可以隔离直流分量并传递交流信号；容量过小会使低频响应变差。','记忆：隔直通交。'];
+if(/SPWM|正弦脉宽/.test(s))return['SPWM','SPWM通过参考正弦波与载波比较形成脉冲序列，规则采样等数字方法可以由软件计算开关时刻。','关键词：采样、比较、脉宽调制。'];
+if(/电气安全|用电安全|验电|接地|安全生产/.test(s))return['电气安全','电气作业的核心是控制危险能量并采取相应防护措施。涉及标准条款时，应以题目适用年份和具体标准版本为准。','GB/T 13869-2017目前仍为现行标准；2026版将于2027-02-01实施。'];
+if(/译码/.test(s)&&/编码/.test(s))return['编码与译码','译码是把编码后的信息恢复成原来所表示的信号或状态，通常可理解为编码的逆过程。','记忆：编码“表示”，译码“还原”。'];
+if(/缺相/.test(s)&&/三相/.test(s))return['三相电动机缺相','三相电动机运行时失去任意一相都会造成缺相，可能导致电流异常、转矩下降和发热。','三相缺一相即可形成缺相运行。'];
+if(q.type==='judge')return['判断题考点','本题判断应结合题干中的定义、条件和绝对化表述。完成后以题库给出的标准答案为准，再查看知识点提示。','遇到“必须、全部、任何、一定”等词，要重点核对条件。'];
+if(q.type==='multiple')return['多项选择题考点','多选题需要同时满足题干条件，不能因为某个选项局部正确就直接选择。建议逐项判断其适用条件。','答案必须与标准答案的选项集合完全一致。'];
+return['单项选择题考点','根据题干关键词、基本原理和选项之间的条件关系进行排除。','先看题干问的是“正确”还是“错误”，再逐项核对。'];
 }
-function getSetQ(){var m=meta(),a=m.match(/第\s*(\d+)\s*套/),b=m.match(/第\s*(\d+)\s*题/);return{set:a?+a[1]:0,q:b?+b[1]:0}}
-function render(){
-var wrap=document.querySelector('.wrap');if(!wrap)return;
+function currentQ(){try{return DATA.find(function(x){return x.id===setId}).questions[order[idx]]}catch(e){return null}}
+function renderTools(){
+var wrap=document.querySelector('.wrap');if(!wrap||window.__examMode)return;
 var bar=document.querySelector('.xbar');if(!bar){bar=document.createElement('div');bar.className='xbar';wrap.insertBefore(bar,document.querySelector('#app'))}
 var k=key(),f=!!state.fav[k];
-bar.innerHTML='<button id="xfav" class="'+(f?'on':'')+'">'+(f?'★ 已收藏':'☆ 收藏本题')+'</button><button id="xexp">📖 查看解析</button><button id="xwrong">错题本 <b>'+Object.keys(state.wrong).length+'</b></button><button id="xstats">学习统计</button><button id="xsrc">资料依据</button>';
-var old=document.querySelector('.xpanel');if(old)old.remove();
-document.getElementById('xfav').onclick=function(){state.fav[k]=!state.fav[k];if(!state.fav[k])delete state.fav[k];save();render()};
-document.getElementById('xexp').onclick=showExplanation;document.getElementById('xwrong').onclick=showWrong;document.getElementById('xstats').onclick=showStats;document.getElementById('xsrc').onclick=showSources;
+bar.innerHTML='<button id="xfav" class="'+(f?'on':'')+'">'+(f?'★ 已收藏':'☆ 收藏')+'</button><button id="xexp">📖 解析</button><button id="xwrong">📕 错题本 '+Object.keys(state.wrong).length+'</button><button id="xnavbtn">🧭 答题卡</button><button id="xstats">📊 统计</button><button id="xauto" class="'+(state.auto?'on':'')+'">⏭ 自动下一题 '+(state.auto?'开':'关')+'</button><button id="xdark" class="'+(state.dark?'on':'')+'">'+(state.dark?'☀️ 日间':'🌙 黑夜')+'</button><button id="xexam">📝 模拟考试</button>';
+document.getElementById('xfav').onclick=function(){state.fav[k]=!state.fav[k];if(!state.fav[k])delete state.fav[k];save();renderTools()};
+document.getElementById('xexp').onclick=function(){showExplanation()};
+document.getElementById('xwrong').onclick=showWrong;document.getElementById('xnavbtn').onclick=showNav;document.getElementById('xstats').onclick=showStats;
+document.getElementById('xauto').onclick=function(){state.auto=!state.auto;save();renderTools()};
+document.getElementById('xdark').onclick=function(){state.dark=!state.dark;document.body.classList.toggle('dark',state.dark);save();renderTools()};
+document.getElementById('xexam').onclick=startExam;
 }
+function showNav(){
+var old=document.querySelector('.xnav');if(old){old.remove();return}
+var nav=document.createElement('div');nav.className='xnav';var s=DATA.find(function(x){return x.id===setId});
+var h='<div class="xnavhead"><span>题目导航（第'+setId+'套）</span><span class="xhint">绿=已答 · 红=错题 · 蓝框=当前</span></div><div class="xnums">';
+for(var i=0;i<90;i++){var q=s.questions[order[i]],kk=metaKeyFor(q),cls='xnum '+(state.answered[kk]?'done ':'')+(state.wrong[kk]?'wrong ':'')+(i===idx?'cur':'');h+='<button class="'+cls+'" data-i="'+i+'">'+(i+1)+'</button>}
+h+='</div>';nav.innerHTML=h;document.querySelector('.wrap').insertBefore(nav,document.querySelector('#app'));nav.querySelectorAll('.xnum').forEach(function(b){b.onclick=function(){idx=+b.dataset.i;render();showNav()}})
+}
+function metaKeyFor(q){return '第 '+setId+'套 · 第 '+q.n+'题 · '+(q.type==='single'?'单选':q.type==='multiple'?'多选':'判断')+'|'+q.stem}
 function panel(html){var old=document.querySelector('.xpanel');if(old)old.remove();var p=document.createElement('div');p.className='xpanel';p.innerHTML=html;document.querySelector('.card')?.appendChild(p)}
-function showExplanation(){var e=explanation(stem());panel('<h3>📖 题目解析</h3><div><span class="tag">考点</span>'+esc(e[0])+'</div><p>'+esc(e[1])+'</p><div class="xhint">💡 '+esc(e[2])+'</div><div class="xsource">解析依据：结合公开教材与技术资料整理；具体产品参数以对应型号说明书为准。</div>')}
-function showWrong(){var a=Object.entries(state.wrong),h='<h3>📕 错题本</h3>';h+=a.length?a.map(function(x){return'<div class="xwrongitem"><b>'+esc(x[1].set||'')+'</b> '+esc(x[1].q||'')+'</div>'}).join(''):'<div class="xhint">还没有错题。答错题目后会自动加入。</div>';panel(h)}
-function showStats(){var a=Object.keys(state.answered).length,r=Object.keys(state.right).length,f=Object.keys(state.fav).length,w=Object.keys(state.wrong).length,rate=a?Math.round(r/a*100):0;panel('<h3>📊 学习统计</h3><div class="xstat"><div><b>'+a+'</b>已答</div><div><b>'+r+'</b>答对</div><div><b>'+rate+'%</b>正确率</div></div><div class="xstat"><div><b>'+w+'</b>错题</div><div><b>'+f+'</b>收藏</div><div><b>'+(a-r)+'</b>答错</div></div><div class="xhint" style="margin-top:10px">数据保存在当前浏览器本地。</div>')}
-function showSources(){var h='<h3>🔎 解析资料依据</h3>';refs.forEach(function(x){h+='<div class="xsource"><a href="'+x[1]+'" target="_blank" rel="noopener">'+esc(x[0])+'</a></div>'});h+='<div class="xsource">题库原题可能来自不同版本资料；涉及标准号、具体设备参数时，应以题目适用年份和设备型号的原始资料为准。</div>';panel(h)}
-function track(){var k=key();if(!k||!stem())return;var sq=getSetQ();state.answered[k]=1;var txt=document.querySelector('.result')?.innerText||'';var good=/回答正确|答对/.test(txt)&&!/错误|不正确/.test(txt);if(good)state.right[k]=1;else state.wrong[k]={set:'第'+sq.set+'套',q:'第'+sq.q+'题'};save();render()}
-var last='',obs=new MutationObserver(function(){var now=key();if(now!==last){last=now;setTimeout(render,0)}if(document.querySelector('.result')&&!document.querySelector('.xtracked')){var m=document.createElement('i');m.className='xtracked';m.style.display='none';document.body.appendChild(m);track();setTimeout(function(){m.remove()},0)}});
-obs.observe(document.body,{childList:true,subtree:true,characterData:true});setTimeout(render,100);
+function showExplanation(q){q=q||currentQ();if(!q)return;var e=explanation(q);panel('<h3>📖 题目解析</h3><div><span class="tag">考点</span>'+esc(e[0])+'</div><p>'+esc(e[1])+'</p><div class="xhint">💡 '+esc(e[2])+'</div><div class="xsource">资料核对：西门子设备参数题参考官方手册；电气安全标准参考国家标准平台。具体产品参数以对应型号说明书为准。</div>')}
+function showWrong(){var a=Object.entries(state.wrong),h='<h3>📕 错题本</h3>';h+=a.length?a.map(function(x){return'<div class="xwrongitem"><b>'+esc(x[1].set||'')+'</b> '+esc(x[1].q||'')+'</div>').join(''):'<div class="xhint">还没有错题。答错后自动加入。</div>';panel(h)}
+function showStats(){var a=Object.keys(state.answered).length,r=Object.keys(state.right).length,f=Object.keys(state.fav).length,w=Object.keys(state.wrong).length,rate=a?Math.round(r/a*100):0;panel('<h3>📊 学习统计</h3><div class="xstat"><div><b>'+a+'</b>已答</div><div><b>'+r+'</b>答对</div><div><b>'+rate+'%</b>正确率</div></div><div class="xstat"><div><b>'+w+'</b>错题</div><div><b>'+f+'</b>收藏</div><div><b>'+(a-r)+'</b>答错</div></div><div class="xhint" style="margin-top:10px">学习数据保存在当前浏览器本地。</div>')}
+function autoNext(){if(window.__examMode||!state.auto)return;setTimeout(function(){var b=document.getElementById('next');if(b&&b.style.display!=='none')b.click()},1200)}
+var exam=null;
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function allQuestions(){var a=[];DATA.forEach(function(s){s.questions.forEach(function(q){a.push(Object.assign({},q,{setId:s.id,sourceN:q.n}))})});return a}
+function startExam(){
+window.__examMode=true;var all=allQuestions(),single=shuffle(all.filter(function(q){return q.type==='single'})),multi=shuffle(all.filter(function(q){return q.type==='multiple'})),judge=shuffle(all.filter(function(q){return q.type==='judge'}));
+exam={qs:shuffle(single.slice(0,60).concat(multi.slice(0,10),judge.slice(0,20))),answers:{},pos:0,seconds:90*60,done:false};
+renderExam();exam.timer=setInterval(function(){exam.seconds--;updateTimer();if(exam.seconds<=0){clearInterval(exam.timer);finishExam(true)}},1000);
+}
+function updateTimer(){var e=document.getElementById('examTimer');if(e)e.textContent=fmt(exam.seconds)}
+function typeName(t){return t==='single'?'单选':t==='multiple'?'多选':'判断'}
+function answerLabel(a){return a&&a.length?a.join('、'):'未作答'}
+function renderExam(){
+var q=exam.qs[exam.pos],sel=exam.answers[exam.pos]||[],app=document.getElementById('app'),pct=Math.round((exam.pos+1)/exam.qs.length*100);
+app.innerHTML='<div class="exam-wrap"><div class="exam-head"><div class="exam-headrow"><button class="btn secondary" id="exitExam" style="flex:0 0 auto;padding:8px 10px">退出</button><div class="exam-title">📝 模拟考试 · '+(exam.pos+1)+'/90</div><div class="timer" id="examTimer">'+fmt(exam.seconds)+'</div></div><div class="exam-progress"><i style="width:'+pct+'%"></i></div></div><div class="exam-card"><div class="meta"><span>第'+q.setId+'套 · 原第'+q.sourceN+'题 · <span class="pill">'+typeName(q.type)+'</span></span></div><div class="exam-q">'+esc(q.stem)+'</div><div id="examOpts">'+examOptions(q,sel)+'</div><div class="foot"><button class="btn secondary" id="prevE" '+(exam.pos?'':'disabled')+'>上一题</button><button class="btn" id="nextE">'+(exam.pos===89?'提交试卷':'下一题')+'</button></div><div class="exam-nav">'+exam.qs.map(function(x,i){return'<button class="exam-num '+(exam.answers[i]?.length?'done ':'')+(i===exam.pos?'cur':'')+'" data-e="'+i+'">'+(i+1)+'</button>'}).join('')+'</div></div></div>';
+document.getElementById('exitExam').onclick=function(){if(confirm('退出模拟考试？本次考试将不会计入成绩。')){clearInterval(exam.timer);window.__examMode=false;render()}};
+document.querySelectorAll('.exam-opt').forEach(function(b){b.onclick=function(){selectExam(q,b.dataset.k)}});
+document.getElementById('prevE').onclick=function(){if(exam.pos>0){exam.pos--;renderExam()}};
+document.getElementById('nextE').onclick=function(){if(exam.pos===89)finishExam(false);else{exam.pos++;renderExam()}};
+document.querySelectorAll('.exam-num').forEach(function(b){b.onclick=function(){exam.pos=+b.dataset.e;renderExam()}});
+}
+function examOptions(q,sel){var opts=q.type==='judge'?[{key:'√',text:'正确'},{key:'×',text:'错误'}]:q.options;return opts.map(function(o){return'<button class="exam-opt '+(sel.includes(o.key)?'sel':'')+'" data-k="'+o.key+'"><b>'+o.key+'.</b> '+esc(o.text)+'</button>'}).join('')}
+function selectExam(q,k){var cur=exam.answers[exam.pos]||[];if(q.type==='multiple'){if(cur.includes(k))cur=cur.filter(function(x){return x!==k});else cur=cur.concat(k);exam.answers[exam.pos]=cur}else exam.answers[exam.pos]=[k];renderExam()}
+function fmt(n){var m=Math.floor(n/60),s=n%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')}
+function finishExam(timeout){
+if(exam.done)return;exam.done=true;clearInterval(exam.timer);var score=0,counts={single:0,multiple:0,judge:0},rights={single:0,multiple:0,judge:0};
+exam.qs.forEach(function(q,i){counts[q.type]++;var a=exam.answers[i]||[],ok=a.length===q.answer.length&&q.answer.every(function(x){return a.includes(x)});if(ok){score++;rights[q.type]++}});
+var app=document.getElementById('app'),h='<div class="exam-wrap"><div class="exam-card"><h2>🎓 模拟考试完成</h2><div class="score">'+score+' / 90</div><p>正确率：'+Math.round(score/90*100)+'%'+(timeout?' · 时间到':'')+'</p><div class="xstat"><div><b>'+rights.single+'/'+counts.single+'</b>单选</div><div><b>'+rights.multiple+'/'+counts.multiple+'</b>多选</div><div><b>'+rights.judge+'/'+counts.judge+'</b>判断</div></div><div class="foot"><button class="btn secondary" id="backStudy">返回刷题</button><button class="btn" id="showAllExp">逐题解析</button></div></div><div id="examReview"></div></div>';
+app.innerHTML=h;document.getElementById('backStudy').onclick=function(){window.__examMode=false;render()};document.getElementById('showAllExp').onclick=function(){document.getElementById('examReview').innerHTML=examReview()};document.getElementById('examReview').innerHTML=examReview()}
+function examReview(){var h='<div class="exam-card" style="margin-top:14px"><h3>📚 逐题解析</h3>';exam.qs.forEach(function(q,i){var a=exam.answers[i]||[],ok=a.length===q.answer.length&&q.answer.every(function(x){return a.includes(x)}),e=explanation(q);h+='<div class="review-item '+(ok?'review-ok':'review-bad')+'"><b>第'+(i+1)+'题 · '+typeName(q.type)+'</b><div style="margin-top:7px;white-space:pre-wrap">'+esc(q.stem)+'</div><p>你的答案：<b>'+esc(answerLabel(a))+'</b><br>正确答案：<b>'+esc(answerLabel(q.answer))+'</b></p><div class="review-exp"><b>解析：'+esc(e[0])+'</b><br>'+esc(e[1])+'<br><span class="xhint">提示：'+esc(e[2])+'</span></div></div>'});h+='</div>';return h}
+var lastKey='',autoMark=false;
+var obs=new MutationObserver(function(){
+if(window.__examMode)return;
+var now=key();if(now!==lastKey){lastKey=now;setTimeout(renderTools,0)}
+if(document.querySelector('.result')&&!autoMark){autoMark=true;var k=key(),q=currentQ(),txt=document.querySelector('.result')?.innerText||'';state.answered[k]=1;var good=/回答正确|答对/.test(txt)&&!/错误|不正确/.test(txt);if(good)state.right[k]=1;else state.wrong[k]={set:'第'+(q?.setId||setId)+'套',q:'第'+(q?.n||'')+'题'};save();renderTools();autoNext();setTimeout(function(){autoMark=false},1000)}
+});
+obs.observe(document.body,{childList:true,subtree:true,characterData:true});
+document.body.classList.toggle('dark',state.dark);
+setTimeout(function(){var top=document.querySelector('.bar');if(top&&!document.getElementById('xexamTop')){var b=document.createElement('button');b.id='xexamTop';b.className='select';b.textContent='📝 模拟考试';b.onclick=startExam;top.appendChild(b)}renderTools()},150);
+
 })();
