@@ -82,6 +82,29 @@ return a;
 function sourceHtml(q){
 return sourcesFor(q).map(function(x){return '<a href="'+x[1]+'" target="_blank" rel="noopener">'+esc(x[0])+'</a>'}).join('<br>');
 }
+function topicBasis(q){
+var s=q.stem||'';
+if(/基尔霍夫|欧姆定律|电阻|电容|电感|交流电|直流电|功率|功率因数|谐振|阻抗|相量/.test(s))return'电路基础：先识别题目涉及的电压、电流、阻抗、功率或相位关系，再用对应定律/公式判断。';
+if(/二极管|三极管|晶闸管|场效应管|放大器|运算放大|整流|滤波|稳压|逻辑门|触发器/.test(s))return'电子技术：根据器件的导通条件、输入输出关系和典型应用判断，不能只按名称猜答案。';
+if(/异步电动机|同步电动机|变压器|发电机|电机|电动机|转矩|转速|励磁/.test(s))return'电机原理：重点看电磁转矩、转差率、同步转速、励磁和机械特性之间的关系。';
+if(/变频器|频率|PWM|SPWM|软启动|调速/.test(s))return'运动控制：先区分运行命令、频率给定、加减速参数和保护状态，再判断控制方式。';
+if(/PLC|可编程|梯形图|定时器|计数器|S7-|三菱|西门子/.test(s))return'PLC控制：结合输入、程序逻辑、定时/计数、输出及通信关系判断，必要时区分硬件故障与程序故障。';
+if(/单片机|8051|中断|定时器|计数器|汇编|Keil/.test(s))return'单片机：根据芯片结构、寄存器功能、定时器工作方式和中断入口地址进行判断。';
+if(/电气安全|安全|触电|接地|漏电|绝缘|验电|防护|消防|爆炸危险/.test(s))return'电气安全：优先判断危险源、隔离措施、接地/绝缘和人员防护要求，再核对适用标准。';
+if(/故障|维修|检修|诊断|排查|维护/.test(s))return'故障诊断：遵循“现象确认→测量验证→缩小范围→处理复测”的顺序，先检查简单、明显且安全的因素。';
+return'本题依据题干定义、条件与专业基本原理判断；做题时应先抓住题干中的限定词和核心参数。';
+}
+function deepDetail(q,e){
+var opts=q.options||[],ans=q.answer||[];
+var correct=opts.filter(function(o){return ans.includes(o.key)}),wrong=opts.filter(function(o){return !ans.includes(o.key)});
+var h='<b>正确答案：'+esc(ans.join('、'))+'</b><br>';
+h+='<p><b>核心依据：</b>'+esc(topicBasis(q))+'</p>';
+h+='<p><b>为什么选'+esc(ans.join('、'))+'：</b>'+correct.map(function(o){return esc(o.key+'、'+o.text+'。该选项与题干要求相符。')}).join('<br>')+'</p>';
+if(wrong.length)h+='<p><b>其余选项：</b>'+wrong.map(function(o){return esc(o.key+'、'+o.text+'：不符合题干所给条件或本题考查的定义/原理。')}).join('<br>')+'</p>';
+h+='<p><b>做题技巧：</b>题干出现“正确/错误、主要、必须、首先、不能”等限定词时，先确认判断方向，再逐项排除。</p>';
+return h;
+}
+
 function panel(html){var old=document.querySelector('.xpanel');if(old)old.remove();var p=document.createElement('div');p.className='xpanel';p.innerHTML=html;document.querySelector('.card')?.appendChild(p)}
 function showExplanation(q){q=q||currentQ();if(!q)return;var e=explanation(q);panel('<h3>📖 题目解析</h3><div><span class="tag">考点</span>'+esc(e[0])+'</div><p>'+esc(e[1])+'</p><div class="xhint">💡 '+esc(e[2])+'</div><div class="xsource">资料核对：西门子设备参数题参考官方手册；电气安全标准参考国家标准平台。具体产品参数以对应型号说明书为准。</div>')}
 function showWrong(){var a=Object.entries(state.wrong),h='<h3>📕 错题本</h3>';h+=a.length?a.map(function(x){return'<div class="xwrongitem"><b>'+esc(x[1].set||'')+'</b> '+esc(x[1].q||'')+'</div>').join(''):'<div class="xhint">还没有错题。答错后自动加入。</div>';panel(h)}
