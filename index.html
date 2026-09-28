@@ -10,4 +10,4 @@ function evaluate(q,clickedKey){if(document.querySelector('.opt.correct,.opt.wro
 function summary(s){app.innerHTML=`<div class="card summary"><div class="small">第 ${s.id} 套完成</div><div class="score">${score} / ${answered}</div><p>正确率：${answered?Math.round(score/answered*100):0}%</p><p class="small">未答题不计入正确率。可以重新开始或切换其他试卷。</p><div class="foot"><button class="btn secondary" onclick="init()">重新练习</button><button class="btn" onclick="setId=(setId%10)+1;sel.value=setId;init()">下一套</button></div></div>`}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 sel.onchange=()=>{setId=+sel.value;init()};document.getElementById('normal').onclick=()=>{random=false;document.getElementById('normal').classList.add('on');document.getElementById('random').classList.remove('on');init()};document.getElementById('random').onclick=()=>{random=true;document.getElementById('random').classList.add('on');document.getElementById('normal').classList.remove('on');init()};init();
-</script></body></html>
+</script><script src="enhancements.js"></script></body></html>
