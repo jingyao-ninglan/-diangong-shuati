@@ -51,19 +51,53 @@ sel.onchange=()=>{setId=+sel.value;mode='normal';random=false;document.getElemen
 </script><script>
 (function(){
 var state={dark:false,explain:true,fav:{},wrong:{},answered:{},right:{}};
-try{var raw=localStorage.getItem("diangong2024_v8");if(raw)state=Object.assign(state,JSON.parse(raw));}catch(e){};document.body.classList.toggle("dark",!!state.dark);document.documentElement.classList.toggle("dark",!!state.dark);
+try{var raw=localStorage.getItem("diangong2024_v8");if(raw)state=Object.assign(state,JSON.parse(raw));}catch(e){};if(typeof state.explain!=="boolean")state.explain=true;document.body.classList.toggle("dark",!!state.dark);document.documentElement.classList.toggle("dark",!!state.dark);
 function save(){try{localStorage.setItem("diangong2024_v8",JSON.stringify(state));}catch(e){}}
 function current(){var item=pool[order[idx]];return item&&item.q;}
 function esc2(x){return String(x==null?"":x).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
 function panel(h){var card=document.querySelector("#app .card");if(!card)return;var p=document.getElementById("xpanel");if(!p){p=document.createElement("div");p.id="xpanel";p.style="margin-top:14px;padding:14px;border:1px solid #d8dee8;border-radius:12px;background:#fff;line-height:1.7";card.appendChild(p);}p.innerHTML=h;}
-function showExplanation(z){var card=document.querySelector("#app .card");if(!card)return;var p=document.getElementById("xpanel");if(!p){p=document.createElement("div");p.id="xpanel";p.className="explain";card.appendChild(p)}var h="<h3>📖 详细解析</h3><p><b>正确答案：</b>"+esc2(z.answer.join("、"))+"</p>";if(z.options&&z.options.length)z.options.forEach(function(o){var yes=z.answer.indexOf(o.key)>=0;h+="<p class=\""+(yes?"right":"wrong")+"\"><b>"+o.key+"：</b>"+esc2(o.text)+(yes?"　✅ 正确":"　❌ 错误")+"</p>"});else h+="<p><b>判断题答案：</b>"+esc2(z.answer.join("、"))+"</p>";p.innerHTML=h}function addBar(){
+function explainText(z){
+ if(z.explanation)return esc2(z.explanation);
+ var stem=String(z.stem||"");
+ var ans=z.answer.join("、");
+ var type=z.type==="single"?"单选题":z.type==="multiple"?"多选题":"判断题";
+ var topic="";
+ if(/职业道德|诚实守信|企业信誉/.test(stem))topic="本题考查职业道德与诚信规范。解题时应抓住题干中的核心要求，选择与该要求直接对应的表述。";
+ else if(/变频器|频率|P0700|P1000|端子|模拟量/.test(stem))topic="本题考查变频器参数设置与控制方式。解题时要区分运行命令来源、频率给定来源以及端子/模拟量等控制信号。";
+ else if(/PLC|梯形图|输入|输出|继电器|定时器|计数器/.test(stem))topic="本题考查PLC控制基础。解题时应结合输入、逻辑条件、输出及定时/计数关系判断。";
+ else if(/电机|异步电动机|三相|接触器|热继电器/.test(stem))topic="本题考查电动机及其控制保护知识。应结合电机运行原理、控制元件功能和保护要求判断。";
+ else if(/安全|触电|接地|漏电|绝缘|验电|停电/.test(stem))topic="本题考查电气安全知识。应优先依据停电、验电、接地、隔离和防护等安全原则判断。";
+ else if(/传感器|检测|测量|温度|压力|位移/.test(stem))topic="本题考查传感器与检测技术。应根据被测量、工作原理和输出特性判断。";
+ else topic="本题考查电工高级相关基础知识。解题时应先抓住题干中的限定条件，再将各选项与考点逐一对应。";
+ var detail="<b>解题思路：</b>"+topic;
+ if(z.options&&z.options.length){
+   detail+="<br><b>选项判断：</b>";
+   z.options.forEach(function(o){
+     var yes=z.answer.indexOf(o.key)>=0;
+     detail+="<br>• "+esc2(o.key)+"："+(yes?"符合题干考查要求，是正确选项。":"与题干所考查的核心条件不匹配，因此不是正确选项。");
+   });
+ }
+ return detail;
+}
+function showExplanation(z){
+ var card=document.querySelector("#app .card");if(!card)return;
+ var p=document.getElementById("xpanel");
+ if(!p){p=document.createElement("div");p.id="xpanel";p.className="explain";card.appendChild(p)}
+ var h="<h3>📖 详细解析</h3><p><b>正确答案：</b>"+esc2(z.answer.join("、"))+"</p><p>"+explainText(z)+"</p>";
+ if(z.options&&z.options.length){
+   h+="<div style=\"margin-top:10px\"><b>逐项判断：</b></div>";
+   z.options.forEach(function(o){var yes=z.answer.indexOf(o.key)>=0;h+="<p class=\""+(yes?"right":"wrong")+"\"><b>"+o.key+"：</b>"+esc2(o.text)+(yes?"　✅ 正确":"　❌ 错误")+"</p>"});
+ }else h+="<p><b>判断结论：</b>"+(z.answer[0]==="√"?"题干表述正确。":"题干表述错误。")+"</p>";
+ p.innerHTML=h;
+}
+function addBar(){
  var w=document.querySelector(".wrap");if(!w)return;
  var b=document.getElementById("xbar");
  if(!b){b=document.createElement("div");b.id="xbar";b.style="display:flex;flex-wrap:wrap;gap:7px;margin:0 0 14px;position:relative;z-index:10";
  b.innerHTML="<button id=xexp>📖 自动解析：开</button><button id=xmock>📝 模拟考试</button><button id=xfav>⭐ 收藏</button><button id=xwrong>📕 错题本</button><button id=xstat>📊 学习统计</button><button id=xdark>🌙 夜间模式</button>";
  w.insertBefore(b,w.querySelector(".mode")||w.firstChild);}
  Array.from(b.children).forEach(function(x){x.style="border:1px solid #cfd7e3;border-radius:10px;padding:8px 10px;background:#fff;color:#25324a;font-weight:700;font-size:14px"});
- document.getElementById("xexp").onclick=function(){state.explain=!state.explain;this.textContent=state.explain?"📖 自动解析：开":"📖 自动解析：关";save();var z=current();if(state.explain&&z&&document.querySelector(".result"))showExplanation(z);else{var p=document.getElementById("xpanel");if(p)p.remove()}};
+ document.getElementById("xexp").textContent=state.explain?"📖 自动解析：开":"📖 自动解析：关";document.getElementById("xexp").onclick=function(){state.explain=!state.explain;this.textContent=state.explain?"📖 自动解析：开":"📖 自动解析：关";save();var z=current();if(state.explain&&z&&document.querySelector(".result"))showExplanation(z);else{var p=document.getElementById("xpanel");if(p)p.remove()}};
  document.getElementById("xmock").onclick=function(){mode="mock";random=false;document.getElementById("mock").classList.add("on");document.getElementById("normal").classList.remove("on");document.getElementById("random").classList.remove("on");init()};
  document.getElementById("xfav").onclick=function(){var z=current();if(!z)return;var k="第"+setId+"套第"+z.n+"题";if(state.fav[k]){delete state.fav[k];panel("<h3>⭐ 收藏</h3>已取消："+k)}else{state.fav[k]=1;panel("<h3>⭐ 收藏</h3>已收藏："+k)}save()};
  document.getElementById("xwrong").onclick=function(){var a=Object.keys(state.wrong);panel("<h3>📕 错题本</h3>"+(a.length?a.join("、"):"暂无错题"))};
