@@ -46,11 +46,11 @@ function init(){buildPool();idx=0;score=0;answered=0;render()}
 function qCardKey(item){return String(item.set)+"_"+String(item.q.n)}
 function picTextFactory(item){
  var arr=IMG[qCardKey(item)]||[], pi=0, rx=new RegExp("\\[pic\\]","g"), key=qCardKey(item);
- function fallback(){
+ function fallback(slot){
    if(key==="1_73"||key==="2_74"||key==="3_73"||key==="7_74")return "<span class='formula'>I线 = √3 I相</span>";
    if(key==="4_80")return "<span class='formula'>EA / VPP</span>";
    if(key==="5_44"||key==="7_42")return "<div class='qdiagram'><b>步进电机驱动控制系统</b><br>脉冲发生器 → 脉冲分配器 → 功率驱动 → 步进电机<br>　　　　　　　　　↑<br>　　　　　　　　直流电源</div>";
-   if(key==="6_3"||key==="8_2")return pi===1?"<span class='formula'>√3</span>":"<div class='qdiagram'>三相380V电源 → 星形电阻负载<br>电压表、电流表测量示意</div>";
+   if(key==="6_3"||key==="8_2")return slot>0?"<span class='formula'>√3</span>":"<div class='qdiagram'>三相380V电源 → 星形电阻负载<br>电压表、电流表测量示意</div>";
    if(key==="9_3")return "<span class='formula'>√2</span>";
    return "<span class='formula'>（原题公式）</span>";
  }
