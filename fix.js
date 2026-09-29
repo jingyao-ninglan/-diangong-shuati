@@ -22,14 +22,14 @@
 
   function key10(item) { return String(item.set) + "_" + String(item.q.n); }
   function cur10() {
-    if (!window.pool || !window.order || typeof window.idx !== "number") return null;
-    var item = window.pool[window.order[window.idx]];
+    if (!pool || !order || typeof idx !== "number") return null;
+    var item = pool[order[idx]];
     return item || null;
   }
 
   function persistPosition() {
     if (typeof setId === "undefined" || typeof mode === "undefined" || typeof idx === "undefined") return;
-    state10.position = {setId:setId, mode:mode, random:!!window.random, idx:idx};
+    state10.position = {setId:setId, mode:mode, random:!!random, idx:idx};
     save10();
   }
 
