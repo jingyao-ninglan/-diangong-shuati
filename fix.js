@@ -314,4 +314,39 @@
   else boot10();
   window.addEventListener("beforeunload",persistPosition);
   window.addEventListener("pagehide",persistPosition);
+
+
+  /* 全局按钮接口：原题页面的 inline onclick 会调用这些名称 */
+  window.dgPrev = function () {
+    try {
+      if (typeof idx !== "number") return;
+      if (idx > 0) {
+        idx--;
+        persistPosition();
+        if (typeof render === "function") render();
+        setTimeout(function(){ repairImages10(); ensureNavigation10(); syncAnswered10(); theme10(); }, 30);
+      }
+    } catch (_) {}
+  };
+
+  window.dgCard = function () {
+    try {
+      cardOverview10();
+    } catch (_) {}
+  };
+
+  window.dgExplain = function () {
+    try {
+      explain10(true);
+    } catch (_) {}
+  };
+
+  /* 保证动态生成的按钮在原页面 render 后仍然可用 */
+  function exposeControls10() {
+    window.dgPrev = window.dgPrev || function(){};
+    window.dgCard = window.dgCard || cardOverview10;
+    window.dgExplain = window.dgExplain || function(){ explain10(true); };
+  }
+  exposeControls10();
+
 })();
