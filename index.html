@@ -79,17 +79,37 @@ function restoreCardAnswer(item,q,opts){
 }
 function render(){
  if(idx>=pool.length){summary();return}
- let item=pool[order[idx]],q=item.q,pct=Math.round(idx/pool.length*100);
- let opts=q.type==='judge'?[{key:'√',text:'正确'},{key:'×',text:'错误'}]:q.options;
- let picText=picTextFactory(item);
- app.innerHTML=`<div class="card"><div class="meta"><span>第 ${idx+1} 题 · <span class="pill">${q.type==='single'?'单选':q.type==='multiple'?'多选':'判断'}</span></span><span>${idx+1} / ${pool.length}</span></div><div class="small" style="margin-bottom:8px">原题：第 ${item.set} 套 · 第 ${q.n} 题</div><div class="progress"><i style="width:${pct}%"></i></div><div class="q">${picText(q.stem)}</div><div id="opts">${opts.map(o=>`<button class="opt" data-key="${o.key}"><span class="key">${o.key}.</span>${picText(o.text)}</button>`).join('')}</div><div id="res"></div><div class="foot"><button id="prev" class="btn secondary" onclick="window.dgPrev()">← 上一题</button><button id="cardBtn" class="btn secondary" onclick="window.dgCard()">🗂 答题卡</button><button id="xinline" class="btn secondary" onclick="window.dgExplain()">📖 查看解析</button><button id="skip" class="btn secondary">跳过</button><button id="next" class="btn" style="display:block">下一题</button></div></div>`;
- document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(q,b));
- document.getElementById('next').onclick=function(){if(!document.querySelector('.opt.correct,.opt.wrong')){alert('请先作答；也可以点击“跳过”进入下一题');return;}idx++;render();};
- document.getElementById('skip').onclick=()=>{window.dgStatus=window.dgStatus||{};var k=qCardKey(item);state.card=state.card||{};state.card[k]={status:"skip",chosen:[]};window.dgStatus[k]="skip";save();idx++;render()};
+ if(idx<0)idx=0;
+ var item=pool[order[idx]],q=item.q,pct=Math.round(idx/pool.length*100),opts=q.type==='judge'?[{key:'√',text:'正确'},{key:'×',text:'错误'}]:q.options;
+ var picText=picTextFactory(item);
+ app.innerHTML='<div class="card"><div class="meta"><span>第 '+(idx+1)+' 题 · <span class="pill">'+(q.type==='single'?'单选':q.type==='multiple'?'多选':'判断')+'</span></span><span>'+(idx+1)+' / '+pool.length+'</span></div><div class="small" style="margin-bottom:8px">原题：第 '+item.set+' 套 · 第 '+q.n+' 题</div><div class="progress"><i style="width:'+pct+'%"></i></div><div class="q">'+picText(q.stem)+'</div><div id="opts">'+opts.map(function(o){return '<button class="opt" data-key="'+esc(o.key)+'"><span class="key">'+esc(o.key)+'.</span>'+picText(o.text)+'</button>';}).join('')+'</div><div id="res"></div><div class="foot"><button id="prev" class="btn secondary" '+(idx===0?'disabled':'')+' onclick="window.dgPrev()">← 上一题</button><button id="cardBtn" class="btn secondary" onclick="window.dgCard()">🗂 答题卡</button><button id="xinline" class="btn secondary" onclick="window.dgExplain()">📖 查看解析</button><button id="skip" class="btn secondary">跳过</button><button id="next" class="btn" style="display:block">下一题</button></div></div>';
+ document.querySelectorAll('.opt').forEach(function(b){b.onclick=function(){answer(q,b)}});
+ document.getElementById('next').onclick=function(){var rec=state.card&&state.card[qCardKey(item)];if(!rec||!rec.status||rec.status==='skip'){alert('请先作答；也可以点击“跳过”进入下一题');return;}goNext()};
+ document.getElementById('skip').onclick=function(){state.card=state.card||{};var k=qCardKey(item);state.card[k]={status:'skip',chosen:[]};window.dgStatus=state.card;save();goNext()};
  restoreCardAnswer(item,q,opts);
+ rememberProgress();
 }
+function goNext(){if(idx<pool.length-1){idx++;rememberProgress();render()}else{idx=pool.length;rememberProgress();render()}}
+function goPrev(){if(idx>0){idx--;rememberProgress();render()}else{alert('已经是第一题')}}
 function answer(q,clicked){if(q.type==='multiple'){clicked.classList.toggle('selected');clicked.style.borderColor=clicked.classList.contains('selected')?'#2563eb':'#d8dee8';clicked.style.background=clicked.classList.contains('selected')?'#eef4ff':'#fff';let chosen=[...document.querySelectorAll('.opt.selected')].map(b=>b.dataset.key);let res=document.getElementById('res');res.innerHTML=chosen.length?`<div class="result" style="background:#f5f7fb;color:#344054">已选择：${chosen.join('、')}，点击“提交答案”检查</div>`:'';let next=document.getElementById('next');next.textContent='提交答案';next.style.display='block';next.onclick=()=>evaluate(q);return}evaluate(q,clicked.dataset.key)}
-function evaluate(q,clickedKey){if(document.querySelector('.opt.correct,.opt.wrong'))return;answered++;window.dgStatus=window.dgStatus||{};let chosen=q.type==='multiple'?[...document.querySelectorAll('.opt.selected')].map(b=>b.dataset.key):[clickedKey];let ok=q.answer.length===chosen.length&&q.answer.every(x=>chosen.includes(x));document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(q.answer.includes(b.dataset.key))b.classList.add('correct');});if(!ok&&clickedKey){let b=[...document.querySelectorAll('.opt')].find(x=>x.dataset.key===clickedKey);if(b)b.classList.add('wrong')}if(ok)score++;var cardKey=qCardKey(pool[order[idx]]);state.card=state.card||{};state.card[cardKey]={status:ok?"right":"wrong",chosen:chosen.slice()};window.dgStatus[cardKey]=ok?"right":"wrong";save();let label=ok?'回答正确 ✓':'回答错误 ✕';let ans=q.answer.join('、');document.getElementById('res').innerHTML=`<div class="result ${ok?'good':'bad'}">${label}<br>正确答案：<span class="answer">${ans}</span></div>`;if(state.explain)showExplanation(q);let next=document.getElementById('next');next.textContent='下一题';next.style.display='block';next.onclick=()=>{idx++;render()};document.getElementById('skip').style.display='none'}
+function evaluate(q,clickedKey){
+ if(document.querySelector('.opt.correct,.opt.wrong'))return;
+ answered++;
+ var chosen=q.type==='multiple'?[...document.querySelectorAll('.opt.selected')].map(function(b){return b.dataset.key}):[clickedKey];
+ var ok=q.answer.length===chosen.length&&q.answer.every(function(x){return chosen.includes(x)});
+ document.querySelectorAll('.opt').forEach(function(b){b.disabled=true;if(q.answer.includes(b.dataset.key))b.classList.add('correct')});
+ if(!ok&&clickedKey){var b=[...document.querySelectorAll('.opt')].find(function(x){return x.dataset.key===clickedKey});if(b)b.classList.add('wrong')}
+ if(ok)score++;
+ var cardKey=qCardKey(pool[order[idx]]);
+ state.card=state.card||{};state.card[cardKey]={status:ok?'right':'wrong',chosen:chosen.slice()};
+ state.answered=state.answered||{};state.right=state.right||{};state.wrong=state.wrong||{};
+ state.answered[cardKey]=true;state.right[cardKey]=!!ok;if(!ok)state.wrong[cardKey]=true;
+ window.dgStatus=state.card;save();rememberProgress();
+ document.getElementById('res').innerHTML='<div class="result '+(ok?'good':'bad')+'">'+(ok?'回答正确 ✓':'回答错误 ✕')+'<br>正确答案：<span class="answer">'+esc(q.answer.join('、'))+'</span></div>';
+ if(state.explain)showExplanation(q);
+ var next=document.getElementById('next');next.textContent=idx<pool.length-1?'下一题':'查看结果';next.style.display='block';next.onclick=function(){goNext()};
+ document.getElementById('skip').style.display='none';
+}
 function summary(){app.innerHTML=`<div class="card summary"><div class="small">${mode==='mock'?'模拟考试完成':'练习完成'}</div><div class="score">${score} / ${answered}</div><p>正确率：${answered?Math.round(score/answered*100):0}%</p><p class="small">本次共 ${pool.length} 题；未答题不计入正确率。</p><div class="foot"><button class="btn secondary" onclick="init()">重新练习</button><button class="btn" onclick="mode='normal';random=false;document.getElementById('normal').classList.add('on');document.getElementById('random').classList.remove('on');document.getElementById('mock').classList.remove('on');init()">顺序练习</button></div></div>`}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 sel.onchange=()=>{setId=+sel.value;mode='normal';random=false;document.getElementById('normal').classList.add('on');document.getElementById('random').classList.remove('on');document.getElementById('mock').classList.remove('on');init()};document.getElementById('normal').onclick=()=>{mode='normal';random=false;document.getElementById('normal').classList.add('on');document.getElementById('random').classList.remove('on');document.getElementById('mock').classList.remove('on');init()};document.getElementById('random').onclick=()=>{mode='random';random=true;document.getElementById('random').classList.add('on');document.getElementById('normal').classList.remove('on');document.getElementById('mock').classList.remove('on');init()};document.getElementById('mock').onclick=()=>{mode='mock';random=false;document.getElementById('mock').classList.add('on');document.getElementById('normal').classList.remove('on');document.getElementById('random').classList.remove('on');init()};init();
@@ -217,7 +237,7 @@ window.dgExplain=function(){
  });
  p.innerHTML=html; card.appendChild(p); p.scrollIntoView({behavior:"smooth",block:"start"});
 };
-window.dgPrev=function(){if(idx>0){idx--;render();}else{alert("已经是第一题");}};
+window.dgPrev=function(){goPrev()};
 window.dgCard=function(){
  var old=document.getElementById("dgCardPanel");if(old)old.remove();
  var card=document.querySelector("#app .card");if(!card)return;
@@ -232,6 +252,23 @@ window.dgCard=function(){
  html+="</div><div style='margin-top:10px;font-size:13px'>🟩正确　🟥错误　🟨跳过　⬜未答</div>";
  p.innerHTML=html;card.appendChild(p);
 };
-window.dgGo=function(i){if(i>=0&&i<pool.length){idx=i;render();}};
+window.dgGo=function(i){if(i>=0&&i<pool.length){idx=i;rememberProgress();render();}};
 })();
+
+/* 稳定化：主题、答题进度、答题卡持久化 */
+function applyTheme(){
+ var on=!!state.dark;
+ document.body.classList.toggle('dark',on);
+ document.documentElement.classList.toggle('dark',on);
+ var b=document.getElementById('xdark');
+ if(b)b.textContent=on?'☀️ 白天模式':'🌙 夜间模式';
+}
+function persistNow(){state.position={setId:setId,mode:mode,random:!!random,idx:idx};save()}
+document.addEventListener('click',function(e){
+ var t=e.target.closest&&e.target.closest('#xdark');
+ if(t){state.dark=!state.dark;applyTheme();persistNow();}
+});
+window.addEventListener('pagehide',persistNow);
+window.addEventListener('beforeunload',persistNow);
+applyTheme();
 </script></body></html>
