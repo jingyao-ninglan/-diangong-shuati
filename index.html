@@ -56,8 +56,8 @@ function picTextFactory(item){
  }
  return function(t){
    return esc(t).replace(rx,function(){
-     var u=arr[pi++];
-     return u?"<div class='qpic'><img src='"+u+"' loading='lazy' alt='题目图片'></div>":fallback();
+     var slot=pi++,u=arr[slot];
+     return u?"<div class='qpic'><img src='"+u+"' loading='lazy' alt='题目图片'></div>":fallback(slot);
    });
  };
 }
