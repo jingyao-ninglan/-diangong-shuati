@@ -127,7 +127,7 @@ function explainText(z){
  }
  return s;
 }
-window.showCurrentExplanation=function(){var item=pool[order[idx]];if(item&&item.q){showExplanation(item.q);var p=document.getElementById("xpanel");if(p)p.scrollIntoView({behavior:"smooth",block:"start");}}};function showExplanation(z){
+window.showCurrentExplanation=function(){var item=pool[order[idx]];if(item&&item.q){showExplanation(item.q);var p=document.getElementById("xpanel");if(p)p.scrollIntoView({behavior:"smooth",block:"start"});}};function showExplanation(z){
  var card=document.querySelector("#app .card");if(!card)return;
  var p=document.getElementById("xpanel");
  if(!p){p=document.createElement("div");p.id="xpanel";p.className="explain";card.appendChild(p)}
