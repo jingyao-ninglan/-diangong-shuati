@@ -6,6 +6,17 @@ body.dark .top{background:#111827!important;border-color:#273244!important}
 body.dark .title{color:#f3f4f6!important}
 body.dark .select{background:#1f2937!important;color:#f3f4f6!important;border-color:#374151!important}
 body.dark .wrap{color:#e5e7eb!important}
+body.dark #dgCardPanel{background:#111827!important;color:#e5e7eb!important;border-color:#374151!important}
+body.dark #dgFixedNav{background:#111827!important;border-color:#374151!important}
+body.dark #dgFixedNav button{background:#1f2937!important;color:#e5e7eb!important;border-color:#374151!important}
+body.dark .ex-question,body.dark .ex-opt{background:#111827!important;color:#e5e7eb!important;border-color:#374151!important}
+.ex-question{margin:10px 0;padding:12px;border:1px solid #d8dee8;border-radius:12px;background:#f8fafc}
+.ex-stem{margin-top:8px;line-height:1.7}
+.ex-main{line-height:1.75}
+.ex-opt{padding:10px 12px;margin:7px 0;border:1px solid #d8dee8;border-radius:10px;line-height:1.6}
+.ex-right{background:#ecfdf3;border-color:#86efac}
+.ex-wrong{background:#fff7f7;border-color:#fecaca}
+.qpic{margin:10px 0;text-align:center}.qpic img{max-width:100%;height:auto;max-height:420px;object-fit:contain;border-radius:8px}
 body.dark .mode button{background:#1f2937!important;color:#e5e7eb!important;border-color:#374151!important}
 body.dark .mode button.on{background:#172554!important;color:#93c5fd!important;border-color:#3b82f6!important}
 body.dark #xbar button{background:#1f2937!important;color:#e5e7eb!important;border-color:#374151!important}
@@ -116,7 +127,25 @@ sel.onchange=()=>{setId=+sel.value;mode='normal';random=false;document.getElemen
 </script><script>
 (function(){
 var state={dark:false,explain:true,fav:{},wrong:{},answered:{},right:{},card:{}};
-try{var raw=localStorage.getItem("diangong2024_v8");if(raw)state=Object.assign(state,JSON.parse(raw));}catch(e){};if(typeof state.explain!=="boolean")state.explain=true;if(!state.card||typeof state.card!=="object")state.card={};window.dgStatus=state.card;document.body.classList.toggle("dark",!!state.dark);document.documentElement.classList.toggle("dark",!!state.dark);;if(typeof render==="function")render();
+try{var raw=localStorage.getItem("diangong2024_v8");if(raw)state=Object.assign(state,JSON.parse(raw));}catch(e){}
+if(typeof state.explain!=="boolean")state.explain=true;
+if(!state.card||typeof state.card!=="object")state.card={};
+window.dgStatus=state.card;
+if(state.position&&Number.isFinite(+state.position.setId)){
+ setId=+state.position.setId;
+ if(!DATA.some(function(s){return s.id===setId}))setId=1;
+ mode=state.position.mode||"normal";
+ if(["normal","random","mock"].indexOf(mode)<0)mode="normal";
+ random=!!state.position.random;
+ buildPool();
+ idx=Math.max(0,Math.min(+state.position.idx||0,pool.length-1));
+ if(sel)sel.value=String(setId);
+ var nb=document.getElementById("normal"),rb=document.getElementById("random"),mb=document.getElementById("mock");
+ if(nb)nb.classList.toggle("on",mode==="normal");
+ if(rb)rb.classList.toggle("on",mode==="random");
+ if(mb)mb.classList.toggle("on",mode==="mock");
+}
+if(typeof render==="function")render();
 function save(){try{localStorage.setItem("diangong2024_v8",JSON.stringify(state));}catch(e){}}
 function rememberProgress(){
  state.position={setId:setId,mode:mode,random:!!random,idx:idx};
@@ -201,11 +230,20 @@ function showExplanation(z){
  var card=document.querySelector("#app .card");if(!card)return;
  var p=document.getElementById("xpanel");
  if(!p){p=document.createElement("div");p.id="xpanel";p.className="explain";card.appendChild(p)}
- var h="<h3>📖 详细解析</h3><p><b>正确答案：</b>"+esc2(z.answer.join("、"))+"</p><p>"+explainText(z)+"</p>";
+ var item=pool[order[idx]],fmt=picTextFactory(item);
+ var h="<h3>📖 详细解析</h3>";
+ h+="<div class='ex-question'><b>题目：</b><div class='ex-stem'>"+fmt(z.stem)+"</div></div>";
+ h+="<p><b>正确答案：</b><span class='answer'>"+esc2(z.answer.join("、"))+"</span></p>";
+ h+="<div class='ex-main'>"+explainText(z)+"</div>";
  if(z.options&&z.options.length){
-   h+="<div style=\"margin-top:10px\"><b>逐项判断：</b></div>";
-   z.options.forEach(function(o){var yes=z.answer.indexOf(o.key)>=0;h+="<p class=\""+(yes?"right":"wrong")+"\"><b>"+o.key+"：</b>"+esc2(o.text)+(yes?"　✅ 正确":"　❌ 错误")+"</p>"});
- }else h+="<p><b>判断结论：</b>"+(z.answer[0]==="√"?"题干表述正确。":"题干表述错误。")+"</p>";
+   h+="<div style='margin-top:14px'><b>逐项判断：</b></div>";
+   z.options.forEach(function(o){
+     var yes=z.answer.indexOf(o.key)>=0;
+     h+="<div class='ex-opt "+(yes?"ex-right":"ex-wrong")+"'><b>"+o.key+"：</b>"+fmt(o.text)+" <span>"+(yes?"✅ 正确":"❌ 错误")+"</span></div>";
+   });
+ }else{
+   h+="<p><b>判断结论：</b>"+(z.answer[0]==="√"?"题干表述正确。":"题干表述错误。")+"</p>";
+ }
  p.innerHTML=h;
 }
 function addBar(){
@@ -293,5 +331,24 @@ document.addEventListener('click',function(e){
 });
 window.addEventListener('pagehide',persistNow);
 window.addEventListener('beforeunload',persistNow);
+function ensureFixedNav(){
+ var old=document.getElementById("dgFixedNav");if(old)old.remove();
+ var nav=document.createElement("div");nav.id="dgFixedNav";
+ nav.innerHTML="<button id='dgPrevBtn'>← 上一题</button><button id='dgCardBtn'>🗂 答题卡</button><button id='dgExpBtn'>📖 解析</button><button id='dgNextBtn'>下一题 →</button>";
+ nav.style="position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:9999;display:flex;gap:7px;padding:8px;background:#fff;border:1px solid #d8dee8;border-radius:14px;box-shadow:0 8px 30px #0002;width:min(720px,calc(100% - 20px))";
+ nav.querySelectorAll("button").forEach(function(b){b.style="flex:1;border:1px solid #cbd5e1;border-radius:10px;padding:10px 7px;background:#f3f4f6;color:#25324a;font-weight:750"});
+ document.body.appendChild(nav);
+ nav.querySelector("#dgPrevBtn").onclick=function(){goPrev()};
+ nav.querySelector("#dgCardBtn").onclick=function(){window.dgCard()};
+ nav.querySelector("#dgExpBtn").onclick=function(){var z=current();if(z)showExplanation(z)};
+ nav.querySelector("#dgNextBtn").onclick=function(){
+   var item=pool[order[idx]],rec=state.card&&state.card[qCardKey(item)];
+   if(rec&&rec.status){goNext();return}
+   alert("请先作答，或点击“跳过”进入下一题");
+ };
+}
+window.toggleDark=function(){state.dark=!state.dark;applyTheme();persistNow()};
+ensureFixedNav();
+window.addEventListener("resize",ensureFixedNav);
 applyTheme();
 </script></body></html>
