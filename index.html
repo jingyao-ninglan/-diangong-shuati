@@ -57,27 +57,75 @@ function current(){var item=pool[order[idx]];return item&&item.q;}
 function esc2(x){return String(x==null?"":x).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
 function panel(h){var card=document.querySelector("#app .card");if(!card)return;var p=document.getElementById("xpanel");if(!p){p=document.createElement("div");p.id="xpanel";p.style="margin-top:14px;padding:14px;border:1px solid #d8dee8;border-radius:12px;background:#fff;line-height:1.7";card.appendChild(p);}p.innerHTML=h;}
 function explainText(z){
- if(z.explanation)return esc2(z.explanation);
- var stem=String(z.stem||"");
- var ans=z.answer.join("、");
- var type=z.type==="single"?"单选题":z.type==="multiple"?"多选题":"判断题";
- var topic="";
- if(/职业道德|诚实守信|企业信誉/.test(stem))topic="本题考查职业道德与诚信规范。解题时应抓住题干中的核心要求，选择与该要求直接对应的表述。";
- else if(/变频器|频率|P0700|P1000|端子|模拟量/.test(stem))topic="本题考查变频器参数设置与控制方式。解题时要区分运行命令来源、频率给定来源以及端子/模拟量等控制信号。";
- else if(/PLC|梯形图|输入|输出|继电器|定时器|计数器/.test(stem))topic="本题考查PLC控制基础。解题时应结合输入、逻辑条件、输出及定时/计数关系判断。";
- else if(/电机|异步电动机|三相|接触器|热继电器/.test(stem))topic="本题考查电动机及其控制保护知识。应结合电机运行原理、控制元件功能和保护要求判断。";
- else if(/安全|触电|接地|漏电|绝缘|验电|停电/.test(stem))topic="本题考查电气安全知识。应优先依据停电、验电、接地、隔离和防护等安全原则判断。";
- else if(/传感器|检测|测量|温度|压力|位移/.test(stem))topic="本题考查传感器与检测技术。应根据被测量、工作原理和输出特性判断。";
- else topic="本题考查电工高级相关基础知识。解题时应先抓住题干中的限定条件，再将各选项与考点逐一对应。";
- var detail="<b>解题思路：</b>"+topic;
- if(z.options&&z.options.length){
-   detail+="<br><b>选项判断：</b>";
-   z.options.forEach(function(o){
-     var yes=z.answer.indexOf(o.key)>=0;
-     detail+="<br>• "+esc2(o.key)+"："+(yes?"符合题干考查要求，是正确选项。":"与题干所考查的核心条件不匹配，因此不是正确选项。");
-   });
+ var stem=String(z.stem||"").replace(/\\s+/g," ").trim();
+ var ans=(z.answer||[]).join("、");
+ var a=(z.answer||[]).slice();
+ var s="";
+ // 先处理有明确数值关系、公式或参数的题目
+ if(/150A/.test(stem)&&/150\\/5/.test(stem)&&/90A/.test(stem)){
+   s="<b>解题：</b>电流互感器变比为150/5=30。一次侧90A时，二次侧电流=90÷30=3A，所以选D。";
+ }else if(/RLC串联/.test(stem)&&/XL/.test(stem)&&/XC/.test(stem)&&/220V/.test(stem)){
+   s="<b>解题：</b>先求电抗差：XL−XC=40−80=−40Ω；阻抗大小Z=√(30²+40²)=50Ω；电流I=220÷50=4.4A，所以选A。";
+ }else if(/P700|P0700/.test(stem)&&/P1000/.test(stem)){
+   s="<b>解题：</b>西门子 MICROMASTER 420 中，P0700用于选择运行命令来源；设置为2表示由端子/数字输入控制。因此题目问“端子控制”时应把P0700设为2，对应正确选项。";
+ }else if(/P700/.test(stem)&&/端子控制/.test(stem)){
+   s="<b>解题：</b>题目关键词是“端子控制”。P0700决定变频器的命令来源，端子/数字输入对应参数值2，因此选择给出“P700（P0700）=2”的选项。";
+ }else if(/P1000/.test(stem)&&/频率|转速|给定/.test(stem)){
+   s="<b>解题：</b>P1000用于选择频率给定来源。判断这类题不能把P0700和P1000混淆：P0700管“运行命令”，P1000管“频率给定”。";
+ }else if(/RLC串联/.test(stem)&&/谐振/.test(stem)&&/2f0/.test(stem)){
+   s="<b>解题：</b>串联RLC在f0处XL=XC。频率升高到2f0后，XL随频率升高而增大、XC随频率升高而减小，因此XL>XC，电路呈电感性，选B。";
+ }else if(/趋肤效应/.test(stem)){
+   s="<b>解题：</b>趋肤效应只明显存在于交流电。交流频率越高，电流越集中在导体表面，有效导电截面积减小，因此交流电阻增大，所以选“交流电；增加”。";
+ }else if(/谐振/.test(stem)&&/频率/.test(stem)){
+   s="<b>解题：</b>判断谐振题先抓住条件：串联RLC谐振时XL=XC；频率变化后比较XL与XC。频率升高时XL增大、XC减小，频率降低则相反。";
+ }else if(/过零控制|过零触发/.test(stem)){
+   s="<b>解题：</b>过零控制是在交流电压过零附近进行晶闸管的通断控制，通过改变一个设定周期内的导通周波数比例来调节平均功率；它与移相控制通过改变触发角调压的原理不同。";
+ }else if(/集肤效应/.test(stem)){
+   s="<b>解题：</b>交变电流频率越高，集肤效应越明显，电流更多集中在导体表面；因此高频感应加热可利用这一特性实现表面快速加热。";
+ }else if(/高频淬火/.test(stem)&&/深度/.test(stem)){
+   s="<b>解题：</b>感应加热频率越高，集肤效应越明显，感应电流集中在更浅的表层，因此高频淬火的淬硬层通常比中频淬火浅，选A。";
+ }else if(/反馈式振荡器/.test(stem)&&/振幅条件/.test(stem)){
+   s="<b>解题：</b>反馈式振荡器要持续振荡，不能只满足振幅条件，还必须满足相位条件（总相移满足正反馈要求）。因此“只要满足振幅条件就可以振荡”的说法错误。";
+ }else if(/振荡器与放大器/.test(stem)){
+   s="<b>解题：</b>放大器需要外加输入激励信号，把输入信号放大；振荡器依靠电路内部的正反馈和选频网络，在没有外加周期输入信号的情况下产生周期信号，所以选C。";
+ }else if(/555定时器/.test(stem)&&/比较器/.test(stem)){
+   s="<b>解题：</b>555定时器内部的核心结构包含两个电压比较器、RS触发器和放电管等，因此“功能主要由两个比较器决定”是对其基本结构的概括。";
+ }else if(/PLC/.test(stem)&&/高速计数器/.test(stem)){
+   s="<b>解题：</b>普通计数器受PLC扫描周期影响，不能可靠计数高频脉冲；高速计数器采用专用硬件计数机制，可处理频率高于普通扫描计数能力的脉冲，因此题干若把二者功能反过来就是错误。";
+ }else if(/千分尺/.test(stem)&&/0.01/.test(stem)){
+   s="<b>解题：</b>常用外径千分尺的微分筒旋转一周，测微螺杆轴向移动0.5mm；微分筒通常分为50格，因此每格移动0.5÷50=0.01mm，选C。";
+ }else if(/职业道德/.test(stem)&&/诚实守信/.test(stem)){
+   s="<b>解题：</b>题干考查的是职业道德中的诚实守信。企业诚实守信不仅是内部行为规范，也直接关系企业在客户、员工和社会中的信誉，因此“维护企业信誉”与题干要求直接对应。";
+ }else if(/设备维护保养/.test(stem)){
+   s="<b>解题：</b>设备维护保养属于设备管理的重要组成部分，目的在于保持设备正常运行、减少故障和延长使用寿命，不能因为生产任务重或短期效益好就取消，因此应选择强调“责任和义务”的表述。";
+ }else if(/0区/.test(stem)&&/爆炸性气体/.test(stem)){
+   s="<b>解题：</b>爆炸危险区域中，0区指爆炸性气体混合物连续出现或长期出现的场所；1区是在正常运行时可能出现，2区则通常是异常情况下短时间出现。因此题干对应0区的定义。";
+ }else if(/UPS/.test(stem)&&/后备式/.test(stem)){
+   s="<b>解题：</b>后备式UPS平时由市电供电，市电异常时才切换到逆变器和蓄电池，因此结构相对简单、价格较低，但存在切换时间。";
+ }else if(/在线式UPS/.test(stem)&&/效率/.test(stem)){
+   s="<b>解题：</b>在线式UPS通常由整流器—逆变器持续供电，负载始终经过功率变换环节，因此相较于直接旁路供电结构，正常市电状态下的能量转换损耗更明显。";
+ }else if(/负反馈/.test(stem)&&/稳态误差/.test(stem)){
+   s="<b>解题：</b>比例调节只能降低稳态误差，不能在一般情况下把阶跃输入的稳态误差消除；加入积分环节后，积分会持续累积误差信号，能够消除静差，因此应选择PI类调节器。";
+ }else if(/转速负反馈/.test(stem)&&/电枢回路电阻压降/.test(stem)){
+   s="<b>解题：</b>直流电动机负载增加时，电枢电流增大，电枢回路电阻压降随之增大，使转速下降。转速负反馈检测转速下降并提高整流输出电压，从而补偿电枢回路电阻压降造成的转速下降。";
+ }else if(/安全|触电|验电|接地|停电|漏电/.test(stem)){
+   s="<b>解题：</b>这类安全题首先判断是否符合“先停电、再验电、必要时接地并采取隔离和警示措施”的基本原则。凡是把带电检修、未验电、取消防护或将无电导线裸露作为正常做法的选项，都与安全操作要求不符。";
+ }else if(/电动机|异步电动机|接触器|热继电器/.test(stem)){
+   s="<b>解题：</b>本题围绕电动机控制与保护。判断选项时要分别看启动、运行、停车以及过载、短路等保护功能，不能把接触器、热继电器和断路器的作用混为一谈。正确答案对应题干所描述的具体功能。";
+ }else if(/判断|\( \)|（ ）/.test(stem)||z.type==="judge"){
+   s="<b>判断方法：</b>先把题干还原成一个明确的技术命题，再检查其中的“必须、全部、只需、一定、不得”等限定词。若其中任一关键条件与电工技术原理或安全要求冲突，则整句话不能成立。";
+ }else{
+   s="<b>解题：</b>题干要求判断的是“"+esc2(stem)+"”。正确答案为“"+esc2(ans)+"”。判断时应先锁定题干的核心对象和限定条件，再用对应的电工原理、设备功能或安全规范逐项核对，而不是只凭关键词猜答案。";
  }
- return detail;
+ if(z.options&&z.options.length){
+   s+="<br><br><b>为什么选它：</b>正确选项 "+esc2(ans)+" 与题干中的核心条件相符。";
+   var wrong=(z.options||[]).filter(function(o){return a.indexOf(o.key)<0;});
+   if(wrong.length){
+     s+="<br><b>其他选项：</b>";
+     wrong.forEach(function(o){s+="<br>• "+esc2(o.key)+"："+esc2(o.text)+" —— 与题干要求或上述技术原理不符。";});
+   }
+ }
+ return s;
 }
 function showExplanation(z){
  var card=document.querySelector("#app .card");if(!card)return;
