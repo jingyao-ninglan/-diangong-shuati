@@ -49,9 +49,9 @@ function picTextFactory(item){
  function fallback(slot){
    if(key==="1_73"||key==="2_74"||key==="3_73"||key==="7_74")return "<span class='formula'>三相对称星形负载：U线=√3U相，I线=I相</span>";
    if(key==="4_80")return "<span class='formula'>EA：片内程序存储器访问应接高电平（EA=1）</span>";
-   if(key==="5_44"||key==="7_42")return "<div class='qdiagram'><b>步进电机驱动控制系统</b><br>控制脉冲：脉冲发生器 → 脉冲分配器 → 功率驱动 → 步进电机<br>电源：直流电源 → 功率驱动<br><small>本题图片缺失时用结构示意代替</small></div>";
-   if(key==="6_3"||key==="8_2")return slot>0?"<span class='formula'>√3</span>":"<div class='qdiagram'>三相380V电源 → 三相对称电阻负载（10Ω）<br>图中仪表按接线位置读取线电压/线电流</div>";
-   if(key==="9_3")return "<span class='formula'>√3</span>";
+   if(key==="5_44"||key==="7_42")return "<div class='qdiagram'><svg viewBox='0 0 760 150' style='max-width:100%;height:auto' role='img' aria-label='步进电机驱动控制系统示意图'><rect x='20' y='45' width='140' height='55' rx='8' fill='none' stroke='currentColor'/><text x='90' y='78' text-anchor='middle' font-size='16'>脉冲发生器</text><path d='M160 72h55M205 67l10 5-10 5' stroke='currentColor' stroke-width='2' fill='none'/><rect x='215' y='45' width='140' height='55' rx='8' fill='none' stroke='currentColor'/><text x='285' y='78' text-anchor='middle' font-size='16'>脉冲分配器</text><path d='M355 72h55M405 67l10 5-10 5' stroke='currentColor' stroke-width='2' fill='none'/><rect x='415' y='45' width='140' height='55' rx='8' fill='none' stroke='currentColor'/><text x='485' y='78' text-anchor='middle' font-size='16'>功率驱动</text><path d='M555 72h55M605 67l10 5-10 5' stroke='currentColor' stroke-width='2' fill='none'/><circle cx='665' cy='72' r='28' fill='none' stroke='currentColor'/><text x='665' y='77' text-anchor='middle' font-size='14'>步进电机</text></svg></div>";
+ if(key==="6_3"||key==="8_2")return slot>0?"<span class='formula'>√3</span>":"<div class='qdiagram'><svg viewBox='0 0 520 250' style='max-width:100%;height:auto' role='img' aria-label='三相三角形电阻负载示意图'><path d='M260 35L100 190L420 190Z' fill='none' stroke='currentColor' stroke-width='2'/><text x='260' y='60' text-anchor='middle' font-size='15'>Rᵤ=10Ω</text><text x='145' y='175' text-anchor='middle' font-size='15'>Rᵥ=10Ω</text><text x='375' y='175' text-anchor='middle' font-size='15'>Rʷ=10Ω</text><text x='260' y='225' text-anchor='middle' font-size='15'>线电压 380V</text></svg></div>";
+ if(key==="9_3")return "<span class='formula'>√3</span>";
    return "<span class='formula'>（原题公式）</span>";
  }
  return function(t){
