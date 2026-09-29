@@ -208,7 +208,7 @@
               if(part) frag.appendChild(document.createTextNode(part));
               if(i<parts.length-1){
                 var d=document.createElement("div"); d.className="dg-pic-error";
-                d.textContent="⚠️ 该题图片资源未匹配到题库图片数据";
+                d.textContent="⚠️ 原题图片资源缺失：当前网页没有保存这张原图";
                 frag.appendChild(d);
               }
             });
