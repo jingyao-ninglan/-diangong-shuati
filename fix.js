@@ -302,6 +302,17 @@
   }
 
   function boot10() {
+    /* 恢复上次正常练习/模拟考试的位置；随机练习不恢复索引，避免刷新后题目顺序变化 */
+    try {
+      var pos=state10.position;
+      if(pos && pos.mode && pos.mode!=="random"){
+        if(typeof setId!=="undefined" && Number.isFinite(Number(pos.setId))) setId=Number(pos.setId);
+        if(typeof mode!=="undefined") mode=pos.mode;
+        if(typeof random!=="undefined") random=!!pos.random;
+        if(typeof buildPool==="function") buildPool();
+        if(typeof idx!=="undefined" && Number.isFinite(Number(pos.idx))) idx=Math.max(0,Math.min(Number(pos.idx),Math.max(0,pool.length-1)));
+      }
+    } catch (_) {}
     installCss10();
     rebuildBar10();
     hookRender10();
