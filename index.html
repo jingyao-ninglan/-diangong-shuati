@@ -294,7 +294,7 @@ function addBar(){
  b.innerHTML="<button id=xexp>📖 解析</button><button id=xmock>📝 模拟考试</button><button id=xfav>⭐ 收藏</button><button id=xwrong>📕 错题本</button><button id=xstat>📊 学习统计</button><button id=xdark>🌙 夜间模式</button>";
  w.insertBefore(b,w.querySelector(".mode")||w.firstChild);}
  Array.from(b.children).forEach(function(x){x.style="border:1px solid #cfd7e3;border-radius:10px;padding:8px 10px;background:#fff;color:#25324a;font-weight:700;font-size:14px"});
- document.getElementById("xexp").textContent="📖 解析";document.getElementById("xexp").onclick=function(){var z=current();if(!z){return}showExplanation(z);setTimeout(function(){var q=document.getElementById("xpanel");if(q){q.scrollIntoView({behavior:"smooth",block:"start"});}},50);};
+ document.getElementById("xdark").onclick=function(){window.toggleDark()};document.getElementById("xexp").textContent="📖 解析";document.getElementById("xexp").onclick=function(){var z=current();if(!z){return}showExplanation(z);setTimeout(function(){var q=document.getElementById("xpanel");if(q){q.scrollIntoView({behavior:"smooth",block:"start"});}},50);};
  document.getElementById("xmock").onclick=function(){mode="mock";random=false;document.getElementById("mock").classList.add("on");document.getElementById("normal").classList.remove("on");document.getElementById("random").classList.remove("on");init()};
  document.getElementById("xfav").onclick=function(){var z=current();if(!z)return;var k="第"+setId+"套第"+z.n+"题";if(state.fav[k]){delete state.fav[k];panel("<h3>⭐ 收藏</h3>已取消："+k)}else{state.fav[k]=1;panel("<h3>⭐ 收藏</h3>已收藏："+k)}save()};
  document.getElementById("xwrong").onclick=function(){var a=Object.keys(state.wrong);panel("<h3>📕 错题本</h3>"+(a.length?a.join("、"):"暂无错题"))};
