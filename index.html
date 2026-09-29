@@ -114,7 +114,7 @@ function explainText(z){
    var w=opts.filter(function(o){return (z.answer||[]).indexOf(o.key)<0;});
    return w.length?"<br><br><b>选项分析：</b>"+w.map(function(o){return "<br>• <b>"+o.key+"：</b>"+esc2(o.text)+" —— 与题干关键条件或对应技术原理不符。";}).join(""):"";
  }
- if(has(/150A/)&&has(/150\\/5/)&&has(/90A/))s="<b>核心考点：</b>电流互感器变比150/5=30。一次侧90A时，二次侧电流=90÷30=3A，因此选D。";
+ if(has(/150A/)&&has(/150\/5/)&&has(/90A/))s="<b>核心考点：</b>电流互感器变比150/5=30。一次侧90A时，二次侧电流=90÷30=3A，因此选D。";
  else if(has(/P700|P0700/)&&has(/端子控制/))s="<b>核心考点：</b>MICROMASTER 420中P0700用于选择命令源，P0700=2表示端子/数字输入控制，因此选择P0700（题库可能写作P700）=2的选项。";
  else if(has(/P1000/)&&has(/频率|速度|给定/))s="<b>核心考点：</b>P1000用于选择频率设定值来源，P0700用于选择运行命令来源。两者功能不能混淆，应按题目给出的控制方式匹配参数。";
  else if(has(/RLC/)&&has(/220V/)&&has(/XL/)&&has(/XC/))s="<b>核心考点：</b>串联RLC阻抗。先求X=XL−XC，再求Z=√(R²+X²)，最后用I=U/Z。不能把XL、XC直接相加。";
