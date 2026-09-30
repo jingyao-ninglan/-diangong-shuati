@@ -279,122 +279,53 @@ function specificChoiceExplanation(z){
   return "";
 }
 
-
-/* ===== v16 学习型通用解析：没有专门规则时，也必须解释“为什么” ===== */
-function learningKeywords(stem){
-  var s=qclean(stem)
-    .replace(/下列|以下|关于|其中|通常|一般|应该|应当|可以|能够|正确的是|错误的是|不正确的是|不属于|不包括|选择/g," ");
-  var raw=s.match(/[A-Za-z]{2,}|[0-9]+(?:\\.[0-9]+)?(?:kW|KW|V|A|mA|Hz|kHz|Ω|mm|%|r\\/min)?|[\\u4e00-\\u9fa5]{2,8}/g)||[];
-  var stop={题目:1,选项:1,设备:1,系统:1,电路:1,电气:1,方法:1,作用:1,情况:1,要求:1,进行:1,的是:1,正确:1,错误:1,说法:1,下列:1,以下:1,关于:1,其中:1,能够:1,可以:1,通常:1,一般:1,不属于:1,不包括:1};
-  var out=[];
-  raw.forEach(function(x){
-    if(!stop[x] && x.length>=2 && out.indexOf(x)<0)out.push(x);
-  });
-  return out.slice(0,7);
-}
-function learningCore(z){
-  var stem=qclean(z.stem), opts=z.options||[], ans=(z.answer||[]).map(String);
-  var correct=opts.filter(function(o){return ans.indexOf(String(o.key))>=0;});
-  var negative=isNegativeChoiceQuestion(stem);
-  var keys=learningKeywords(stem);
-  var focus=keys.slice(0,4).join("、")||"题干中的关键条件";
-  var correctText=correct.map(function(o){return o.key+"："+qclean(o.text)}).join("；");
-  var lines=[];
-
-  lines.push("<b>① 先抓题干：</b>这道题的关键不是死记选项，而是先抓住“"+esc2(focus)+"”。");
-  if(negative){
-    lines.push("<br><b>② 看题目到底问什么：</b>题干要求找的是<strong>错误项/不符合项</strong>，所以不能因为某个选项“听起来专业”就选它，要找与题干条件冲突的那一项。");
-  }else{
-    lines.push("<br><b>② 看题目到底问什么：</b>题干要求找的是<strong>符合条件的选项</strong>，所以要把每个选项放回题干条件里检查，而不是只看关键词是否相似。");
-  }
-
-  if(/=|≥|≤|>|<|\\d/.test(stem) && opts.length){
-    lines.push("<br><b>③ 参数/数字怎么判断：</b>先把题干给出的功率、电压、电流、频率、阻值、时间等参数抄出来，再与选项逐一比较；单位不同或数值不满足题干条件时，不能只看数字大小。");
-  }else if(/原理|作用|功能|用途|特点|区别|组成|结构|控制|保护/.test(stem)){
-    lines.push("<br><b>③ 原理怎么判断：</b>先问自己“这个器件/环节到底负责什么”，再看选项说的是不是同一个功能。最容易错的地方就是把相邻器件的功能混在一起。");
-  }else if(/故障|维修|检查|检测|调试/.test(stem)){
-    lines.push("<br><b>③ 故障题怎么判断：</b>按照“现象 → 可能原因 → 检查对象 → 处理方法”往下排查，不能直接从故障现象跳到一个没有依据的结论。");
-  }else if(/安全|触电|接地|停电|验电|防护|施工|安装/.test(stem)){
-    lines.push("<br><b>③ 安全题怎么判断：</b>先检查是否做到停电、验电、隔离、接地和警示，再看操作顺序是否合理；不能把“设备能运行”和“操作安全”混为一谈。");
-  }else{
-    lines.push("<br><b>③ 逐项验证：</b>把题干的限定条件逐个套到 A、B、C、D 上；一个选项只要改变了对象、方向、参数、条件或功能，就不能认为它与题干相同。");
-  }
-
-  if(correct.length){
-    lines.push("<br><b>"+(negative?"④ 正确排除项":"④ 为什么选这个")+
-      "：</b><span class='answer-focus'>"+esc2(correctText)+"</span>。"+
-      (negative
-        ?"它是所有选项中与题干限定发生冲突的那一项，所以被排除。"
-        :"它同时满足题干给出的主要限定条件，所以是本题标准答案。"));
-  }
-
-  if(opts.length){
-    var html="<div class='option-reason'><b>⑤ A～D 到底错在哪里：</b>";
-    opts.forEach(function(o){
-      var ok=ans.indexOf(String(o.key))>=0;
-      var msg=learningOptionReason(z,o,ok);
-      var good=ok && !negative || (!ok && negative);
-      html+="<div style='margin-top:9px;padding:10px;border-radius:9px;background:"+(good?"var(--greenbg)":"var(--redbg)")+";color:var(--text)'>"+
-        "<b>"+esc2(o.key)+"："+(good?"✅ 符合题意":"❌ 不符合题意")+"</b><br>"+
-        esc2(qclean(o.text))+"<br><span style='color:var(--muted)'>"+msg+"</span></div>";
-    });
-    html+="</div>";
-    lines.push(html);
-  }
-  lines.push("<br><b>⑥ 考试记忆：</b>"+learningMemory(z,correct));
-  return lines.join("");
-}
-function learningOptionReason(z,o,ok){
-  var stem=qclean(z.stem), txt=qclean(o.text), ans=(z.answer||[]).map(String);
-  var correct=(z.options||[]).filter(function(x){return ans.indexOf(String(x.key))>=0;});
-  var ct=correct.map(function(x){return qclean(x.text)}).join("；");
-  var negative=isNegativeChoiceQuestion(stem);
-
-  if(ok){
-    if(negative)return "题干要求找“不正确/不符合”的选项；这个选项与题干条件冲突，因此正是需要排除的对象。";
-    if(/^\\[pic\\]$/.test(txt))return "这是图示选项，题库标准答案把该图对应的接线/结构判为符合题干；判断时重点看图中的器件连接关系，而不是只看图的外观。";
-    var nums=txt.match(/[-+]?\\d+(?:\\.\\d+)?(?:\\s*(?:kW|KW|V|A|mA|Hz|kHz|Ω|mm|%|r\\/min))?/g);
-    if(nums&&nums.length)return "题干给出的相关参数与该项的“"+nums.join("、")+"”能够对应，因此它满足本题的参数条件。";
-    return "题干要求的是“"+extractKeyPhrase(stem)+"”，该项给出的对象/功能与这个要求相对应，所以成立。";
-  }
-
-  var p=polarityPair(txt,ct);
-  if(p)return "这里把关键方向弄反了：该项说“"+p[0]+"”，而标准答案对应的是“"+p[1]+"”。这类题要优先检查增减、正反、输入输出、开闭环等成对概念。";
-  if(/必须|一定|全部|只能|任何|完全|绝对|永远/.test(txt)){
-    var w=(txt.match(/必须|一定|全部|只能|任何|完全|绝对|永远/)||[""])[0];
-    return "该项用了“"+w+"”这样的绝对化表述。题干只给出了特定条件，不能在没有额外条件时把结论扩大成无条件成立。";
-  }
-  if(/无需|不需要|不用|无须/.test(txt))return "该项直接把题干场景下需要的条件/措施省掉了；与标准答案相比，它少了一个必要条件。";
-  if(/不能|不可|不可以|禁止/.test(txt))return "该项把某项功能/操作直接判定为“不能”，但题干所给条件并没有支持这个绝对限制；因此与标准答案的适用条件不同。";
-  if(/[=≥≤<>]|\\d/.test(txt) && /[=≥≤<>]|\\d/.test(ct)){
-    return "该项与标准答案相比，数字、单位或数量关系不同；这类题不能只看“数值接近”，必须满足题干给出的计算关系/额定范围。";
-  }
-  var k=learningKeywords(stem);
-  var shared=k.filter(function(x){return txt.indexOf(x)>=0;});
-  if(shared.length){
-    return "它虽然包含“"+shared.slice(0,3).join("、")+"”等题干关键词，但关键词相同不等于结论正确；它后面的功能/条件与题干要求没有对应上。";
-  }
-  return "它没有满足题干的关键限定。对比标准答案“"+extractKeyPhrase(ct||"标准答案")+"”，该项改变了题目要求的对象、功能、参数或适用条件。";
-}
-function learningMemory(z,correct){
-  var stem=qclean(z.stem), ct=correct.map(function(o){return qclean(o.text)}).join("；");
-  if(/计算|多少|多大|求/.test(stem))return "先写公式，再代入数值，最后检查单位；不要凭选项大小猜答案。";
-  if(/安全|触电|接地|停电|验电/.test(stem))return "安全题先记“停电—验电—隔离—接地/警示”，再判断具体操作。";
-  if(/变频器/.test(stem))return "变频器选型/参数题先看负载，再看功率和电压等级，最后核对具体型号参数。";
-  if(/PLC|单片机|8051/.test(stem))return "控制器题把“端子—功能—参数—输入/输出”对应起来记，不要只背参数数字。";
-  if(/电动机|电机|调速/.test(stem))return "先判断电机类型和控制目标，再判断调速方式、反馈环节和保护方式。";
-  return "记住“题干条件 → 技术原理 → 选项逐项验证”这条链。只背字母容易换题就不会做。";
-}
 function explainText(z){
   if(String(z.type||"")==="judge") return judgeExplanation(z);
   var specific=specificChoiceExplanation(z);
   if(specific)return specific;
   var base="";
   try{base=explainTextCore(z);}catch(e){base="";}
-  /* v16：专门规则优先；普通题统一补充学习型解析，避免只给空泛结论 */
-  base=base.replace(/<div class='option-reason'>[\\s\\S]*?<\\/div>$/,"");
-  var learning=learningCore(z);
-  return (base?base+"<hr style='border:0;border-top:1px solid var(--line);margin:12px 0'>":"")+learning;
+
+  /* 核心解析去掉旧的“逐项解析”块，统一由v15输出 */
+  base=base.replace(/<div class='option-reason'>[\s\S]*?<\/div>$/,"");
+  var stem=qclean(z.stem), ans=z.answer||[], opts=z.options||[];
+  var correct=(opts.filter(function(o){return ans.indexOf(o.key)>=0;})).map(function(o){return o.key+"."+qclean(o.text)}).join("；");
+  var negative=isNegativeChoiceQuestion(stem);
+  var intent=negative?"本题是在找错误项/排除项":"本题是在找正确项";
+  var heading="";
+  if(/计算|多少|多大|求|计算得|数值|电流.*A|电压.*V|功率.*W|电阻.*Ω|频率.*Hz|转速.*r\/min/.test(stem)){
+    heading="计算/参数题：先识别已知量、连接方式和单位，再代入对应公式或标准参数。";
+  }else if(/原理|作用|功能|组成|特点|区别|属于|包括|不包括/.test(stem)){
+    heading="原理/功能题：先确定题目考查的器件或系统，再把每个选项与该器件的实际功能、结构和适用条件逐项对应。";
+  }else if(/故障|维修|检查|调试/.test(stem)){
+    heading="故障/调试题：按“现象→可能原因→检测方法→处理措施”分析，先排查电源、接线、保护和明显异常。";
+  }else if(/安全|规范|施工|安装|接地|验电|停电/.test(stem)){
+    heading="安全/规范题：先检查操作顺序、防护措施、接地验电和适用条件，再判断选项是否违反安全要求。";
+  }else{
+    heading="判断题干中的对象、限定词和技术关系，再把标准答案与每个选项逐项对照。";
+  }
+  base += "<hr style='border:0;border-top:1px solid var(--line);margin:12px 0'>"+
+    "<b>本题怎么判断：</b>"+esc2(intent)+"。"+esc2(heading)+
+    "<br><b>标准答案：</b>"+esc2(correct||ans.join("、"));
+
+  if(opts.length){
+    var html="<div class='option-reason'><b>选项逐项解析：</b>";
+    opts.forEach(function(o){
+      var ok=ans.indexOf(o.key)>=0;
+      var verdict;
+      if(negative){
+        verdict=ok?"✅ 该项应被排除":"✅ 该项符合要求";
+      }else{
+        verdict=ok?"✅ 正确":"❌ 错误";
+      }
+      html+="<div style='margin-top:9px;padding:9px 10px;border-radius:9px;background:"+(ok&&!negative?"var(--greenbg)":(!ok&&negative?"var(--greenbg)":"var(--redbg)"))+";color:var(--text)'>"+
+        "<b>"+esc2(o.key)+"："+verdict+"</b><br>"+qclean(o.text)+
+        "<br><span style='color:var(--muted)'>"+smartOptionReason(z,o,ok)+"</span></div>";
+    });
+    html+="</div>";
+    base+=html;
+  }
+  return base;
 }
 
 function explainTextCore(z){
