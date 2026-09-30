@@ -22,12 +22,30 @@ function explainText(z){
  var stem=String(z.stem||"").replace(/\\s+/g," ").trim();
  var ans=(z.answer||[]).join("、"),opts=z.options||[],s="";
  function has(re){return re.test(stem)}
+ function optionReason(o,ok){
+   var text=String(o.text||"").replace(/\\s+/g," ").trim();
+   var correct=(z.options||[]).filter(function(x){return (z.answer||[]).indexOf(x.key)>=0}).map(function(x){return x.key+"."+String(x.text||"").trim()});
+   var correctText=correct.join("；");
+   var reason="";
+   if(ok){
+     reason="该选项与题干所问对象、条件和技术关系一致。";
+     if(/=|≥|≤|>|<|\\d/.test(text)||/a|v|kw|hz|Ω|mm|kv|ma/i.test(text)) reason+="其中的数值或关系与题干给出的条件相匹配。";
+   }else{
+     if(/必须|一定|全部|只能|均|任何|绝对|永远|完全/.test(text)) reason="该项使用了过于绝对的表述，题干条件并不能推出这种无条件结论。";
+     else if(/无需|不需要|不用|无须/.test(text)) reason="该项否定了题干场景下需要满足的操作、条件或保护要求，因此与正确判断相反。";
+     else if(/不能|不可|不可以|禁止/.test(text)) reason="该项给出的限制与题干对象的实际功能或规定不符。";
+     else if(/等于|=|≥|≤|>|</.test(text)) reason="该项的数量关系、参数范围或计算结果与题干条件不一致。";
+     else reason="该项虽然涉及同一知识点，但把对象、功能、条件或结论混淆了；题干条件不足以支持该说法。";
+     if(correctText) reason+=" 正确判断为："+correctText+"。";
+   }
+   return reason;
+ }
  function choices(){
    if(!opts.length)return "";
-   var out="<div class='option-reason'><b>选项核对：</b>";
+   var out="<div class='option-reason'><b>选项逐项解析：</b>";
    opts.forEach(function(o){
      var ok=(z.answer||[]).indexOf(o.key)>=0;
-     out+="<br><b>"+o.key+"：</b>"+esc2(o.text)+" —— "+(ok?"符合题干条件。":"不符合题干给出的对象、条件或技术定义。");
+     out+="<div style='margin-top:9px;padding:9px 10px;border-radius:9px;background:"+(ok?"var(--greenbg)":"var(--redbg)")+";color:var(--text)'><b>"+o.key+"："+(ok?"✅ 正确":"❌ 错误")+"</b><br>"+esc2(o.text)+"<br><span style='color:var(--muted)'>"+optionReason(o,ok)+"</span></div>";
    });
    return out+"</div>";
  }
